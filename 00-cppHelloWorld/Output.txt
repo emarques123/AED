@@ -1,0 +1,4 @@
+Hello World :D
+
+C:\Users\sioux\Desktop\UTN\3 Algoritmos y Estructura de datos\Repositorios\00-cppHelloWorld\x64\Debug\00-cppHelloWorld.exe (proceso 12368) se cerró con el código 0.
+Presione cualquier tecla para cerrar esta ventana. . .
