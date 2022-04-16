@@ -1,4 +1,0 @@
-Hello World :D
-
-C:\Users\sioux\source\repos\00-CppHelloWorld\x64\Release\00-CppHelloWorld.exe (proceso 7040) se cerró con el código 0.
-Presione cualquier tecla para cerrar esta ventana. . .
