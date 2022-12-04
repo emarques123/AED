@@ -1,31 +1,54 @@
 #include <iostream>
-#include <string>
+#include <fstream>
 #include <array>
+#include <vector>
+#include <string>
 #include <cassert>
 
 using std::array;
+using std::vector;
 using std::string;
 using std::cin;
 using std::cout;
 
-/*  Credito Extra:
-"Implementar las funciones que permitan representar a los vendedores con strings 
-y las regiones con enum (Norte, Sur, Este, y Oeste), en vez de representarlos con números)"
-??? representarlos así donde? en el txt de entrada? en las pruebas? en la salida? Voy a tratar de cubrir las 3 posibilidades
-*/
+#define CantidadRegion 4
+#define CantidadVendedor 3
+#define CantidadMes 12
+#define CantidadCapos 1
+#define DataFileBIN "data.bin"
+#define DataFileTXT "data.txt"
 
-/* Vendedores:Σ*-->N/{0  si Vendedor1
-                     {1  si Vendedor2
-                     {2  si Vendedor3 
-                     {3  e.o.c         */
-unsigned NumVendedor(string);
+using CUBO = array<array<array<int,CantidadMes>,CantidadVendedor>,CantidadRegion>;
+using CUVO = array<array<array<vector<int>,CantidadMes>,CantidadCapos>,CantidadRegion>;
 
-enum Regiones{Norte, Sur, Este, Oeste, Otra};
-/* NumRegion:Σ*-->Z /{0   si Norte  
-                     {1   si Sur    
-                     {2   si Este   
-                     {3   si Oeste  
-                     {4   e.o.c        */
+enum Regiones{Norte, Sur, Este, Oeste, NoDefinida};
+
+//:::::::::::::::::::::::::::Prototipos:::::::::::::::::::::::::::
+
+//::Flujo de Datos::
+
+/* Credito Extra: Implementar las funciones LeerDatos y MostrarTotales */
+// LeerDatos:ε --> ε/ EDL cin>>array
+void LeerDatosCIN(); //hacer opcion con lectura desde test.txt y dejarla comentada "void LeerDatos(std::ifstream&)" LeerDatos:Test.txt --> ε/
+
+
+
+
+
+//::Cálculo de Estadísticas::
+
+//::Presentación de Datos::
+
+// MostrarTotales:Z^12^3^4-->ε/ EDL cout<<array
+void MostrarTotales(const CUBO &);
+
+/* NombreVendedor:N-->Σ* /{"ElCapo"  si 0
+                          {"Juan"    si 1
+                          {... 
+                          {"No Definido"  e.o.c */
+string NombreVendedor(unsigned);
+
+
 Regiones NumRegion(string);
 
 /* NombreRegion:Z-->Σ* /{Norte  si 0
@@ -40,12 +63,6 @@ string NombreRegion(int);
                           {Oeste  e.o.c  */
 string NombreVendedor(int);
 
-/* Credito Extra: Implementar las funciones LeerDatos y MostrarTotales */
-// LeerDatos:ε --> ε/ EDL cin>>array
-void LeerDatos(); //hacer opcion con lectura desde test.txt y dejarla comentada "void LeerDatos(std::ifstream&)" LeerDatos:Test.txt --> ε/
-
-// MostrarTotales:Z^12^3^4-->ε/ EDL cout<<array
-void MostrarTotales(array<array<array<int,12>,3>,4>);
 
 /*Credito Extra:Presentar las tablas lo más claro posible con formato, alineación numérica y con títulos.*/
 // MostrarTotalesConFormato:Z^12^3^4-->ε/ EDL cout<<array
@@ -65,42 +82,38 @@ string GetVendedorConMenosVentas(int, Regiones);
 
 double GetPromedioVentas(int, int);
 
-array<array<array<int,12>,3>,4> ImporteMesVendedorRegion{};
-array<array<array<int,12>,3>,4> TrxMesVendedorRegion{};
+CUBO ImporteMesVendedorRegion{};
+CUBO TrxMesVendedorRegion{};
+CUVO VentasDelCapo{};
 
 int main(){
 
 assert(1 == Regiones::Sur);
 
-LeerDatos();
+LeerDatosCIN();
 
-/*
-MostrarTotalesConFormato(ImporteMesVendedorRegion);
-assert(GetVendedorConMasVentas(8, Regiones::Este) == GetVendedorConMasVentas(8, Regiones::Oeste));
-cout << "El Vendedor con mas ventas en " << "Enero" << ", Region:" <<" Norte" <<" es: ";
-cout << GetVendedorConMasVentas(0,Regiones::Norte) <<'\n';
-cout << "El Vendedor con mas ventas en " << "Mayo" << ", Region:" <<" Sur" <<" es: ";
-cout << GetVendedorConMasVentas(4,Regiones::Sur) <<'\n';
-cout << "El Vendedor con menos ventas en " << "Enero" << ", Region:" <<" Norte" <<" es: ";
-cout << GetVendedorConMenosVentas(0,Regiones::Norte) <<'\n';
-*/
+MostrarTotales(ImporteMesVendedorRegion);
 
-cout << GetPromedioVentas(0,1);
+//cout << GetPromedioVentas(0,1);
 //MostrarTotalesConFormato(TrxMesVendedorRegion);
 
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////
-void LeerDatos(){
-    string Vendedor, Region;
-    for (int Importe, Mes;cin >> Importe >> Mes >> Vendedor >> Region;){
+//:::::::::::::::::::::::Implementaciones::::::::::::::::::::::::
 
-    ImporteMesVendedorRegion.at(NumRegion(Region)).at(NumVendedor(Vendedor)).at(Mes) += Importe;
-    ++TrxMesVendedorRegion.at(NumRegion(Region)).at(NumVendedor(Vendedor)).at(Mes);
+//::Flujo de Datos::
+
+
+void LeerDatosCIN(){
+    
+    for (int Importe, Mes, Vendedor, Region;cin >> Importe >> Mes >> Vendedor >> Region;){
+
+    ImporteMesVendedorRegion.at(Region).at(Vendedor).at(Mes) += Importe;
+    ++TrxMesVendedorRegion.at(Region).at(Vendedor).at(Mes);
 }
 }
 
-void MostrarTotales(array<array<array<int,12>,3>,4> Array){
+void MostrarTotales(const CUBO &Array){
 for( auto r : Array) { 
     for (auto v : r){
         for (auto t : v){
@@ -148,7 +161,7 @@ Regiones NumRegion(string nomr){
            nomr == "Sur"?   Sur:
            nomr == "Este"?  Este:
            nomr == "Oeste"? Oeste:
-                            Otra; // para evitar que cualquier string entre como "Oeste"
+                            NoDefinida; // para evitar que cualquier string entre como "Oeste"
 }
 
 string NombreVendedor(int numv){
