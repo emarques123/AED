@@ -11,36 +11,66 @@ using std::string;
 using std::cin;
 using std::cout;
 
-#define CantidadRegion 4
-#define CantidadVendedor 3
-#define CantidadMes 12
-#define CantidadCapos 1
+#define CantidadRegiones 4
+#define CantidadVendedores 3
+#define CantidadMeses 12          
+#define CantidadCapos 1         //para definir tamaño array vendedores en vector ventas del capo
+#define RegionesCapos 1          //para definir tamaño array regiones en vector ventas del capo
+#define ElCapo 0                //para definir que vendedor es el capo
+#define RegionDelCapo 0         //para definir cual es la region del capo
+#define InicioVector 16         //para setear un tamaño inicial al vector
 #define DataFileBIN "data.bin"
 #define DataFileTXT "data.txt"
 
-using CUBO = array<array<array<int,CantidadMes>,CantidadVendedor>,CantidadRegion>;
-using CUVO = array<array<array<vector<int>,CantidadMes>,CantidadCapos>,CantidadRegion>;
+using CUBO = array<array<array<int,CantidadMeses>,CantidadVendedores>,CantidadRegiones>;
+using CUVO = array<array<array<vector<int>,CantidadMeses>,CantidadCapos>,RegionesCapos>;
 
 enum Regiones{Norte, Sur, Este, Oeste, NoDefinida};
 
+
+
+
+
+
+
+
+
+
 //:::::::::::::::::::::::::::Prototipos:::::::::::::::::::::::::::
 
-//::Flujo de Datos::
-
+//::Flujo de Datos:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 /* Credito Extra: Implementar las funciones LeerDatos y MostrarTotales */
-// LeerDatos:ε --> ε/ EDL cin>>array
-void LeerDatosCIN(); //hacer opcion con lectura desde test.txt y dejarla comentada "void LeerDatos(std::ifstream&)" LeerDatos:Test.txt --> ε/
 
+// LeerDatosCIN: ε --> ε/ EDL cin>>array
+void LeerDatosCIN();
+//hacer opcion con lectura desde test.txt y dejarla comentada "void LeerDatos(std::ifstream&)" LeerDatos:Test.txt --> ε/
 
-
-
-
-//::Cálculo de Estadísticas::
-
-//::Presentación de Datos::
+// GuardarVentaDelCapo: Z^12^1^4 --> ε/ EDL cin>>Vector
+void GuardarVentaDelCapo(const int, int, int, int);
 
 // MostrarTotales:Z^12^3^4-->ε/ EDL cout<<array
 void MostrarTotales(const CUBO &);
+
+// MostrarVentasCapo:Z^N^12^1^4-->ε/ EDL cout<<vector
+void MostrarVentasCapo(const CUVO &);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//::Cálculo de Estadísticas::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+//::Presentación de Datos::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 /* NombreVendedor:N-->Σ* /{"ElCapo"  si 0
                           {"Juan"    si 1
@@ -82,6 +112,21 @@ string GetVendedorConMenosVentas(int, Regiones);
 
 double GetPromedioVentas(int, int);
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 CUBO ImporteMesVendedorRegion{};
 CUBO TrxMesVendedorRegion{};
 CUVO VentasDelCapo{};
@@ -90,19 +135,35 @@ int main(){
 
 assert(1 == Regiones::Sur);
 
-LeerDatosCIN();
+//VentasDelCapo reservar vector***** hacer funcion?
 
-MostrarTotales(ImporteMesVendedorRegion);
+LeerDatosCIN();
+//MostrarTotales(ImporteMesVendedorRegion);
+
+MostrarVentasCapo(VentasDelCapo);
 
 //cout << GetPromedioVentas(0,1);
 //MostrarTotalesConFormato(TrxMesVendedorRegion);
 
 }
 
-//:::::::::::::::::::::::Implementaciones::::::::::::::::::::::::
 
-//::Flujo de Datos::
 
+
+
+
+
+
+
+
+
+
+
+
+
+//:::::::::::::::::::::::Implementaciones::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+//::Flujo de Datos:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 void LeerDatosCIN(){
     
@@ -110,21 +171,65 @@ void LeerDatosCIN(){
 
     ImporteMesVendedorRegion.at(Region).at(Vendedor).at(Mes) += Importe;
     ++TrxMesVendedorRegion.at(Region).at(Vendedor).at(Mes);
+
+    if (Vendedor == ElCapo && Region == RegionDelCapo) //si hubiera mas de uno >> llamar funcion sosuncapo?
+    {
+        GuardarVentaDelCapo(Region, Vendedor, Mes, Importe);
+    }
+    
 }
 }
+
+void GuardarVentaDelCapo(const int r,const int c,const int m,const int v){
+
+    VentasDelCapo.at(r).at(c).at(m).push_back(v);
+}
+
+
 
 void MostrarTotales(const CUBO &Array){
 for( auto r : Array) { 
     for (auto v : r){
         for (auto t : v){
-            cout << t << "\t";
+            cout << t << '\t';
         }
-        cout << "\n";
+        cout << '\n';
     }
-    cout << "\n";
+    cout << '\n';
 }
 }
 
+void MostrarVentasCapo(const CUVO &vector){
+for( auto r : vector) { 
+    for (auto c : r){
+        for (auto m : c){
+            for(auto v :m)
+              cout << v << ' ';
+         cout << '\n';     
+        }
+        cout << '\n';
+    }
+    cout << '\n';
+}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//::Presentación de Datos::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 void MostrarTotalesConFormato(array<array<array<int,12>,3>,4> Array){
 int ir{0};
 cout << "Las ventas totales por Region, Vendedor y Meses son:\n";
@@ -177,6 +282,24 @@ unsigned NumVendedor(string NombreVendedor){
                                         3;// para evitar que cualquier otro string pase como "Jorge"
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//::Cálculo de Estadísticas::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 string GetVendedorConMasVentas(int Mes, Regiones Region){
     int A, B, C;
     
