@@ -5,22 +5,24 @@
 #include <string>
 #include <cassert>
 
-using std::array;
-using std::vector;
-using std::string;
-using std::cin;
-using std::cout;
 
-#define CantidadRegiones 4
-#define CantidadVendedores 3
-#define CantidadMeses 12          
+#define CantidadRegiones 4      //
+#define CantidadVendedores 3    //para definir tamaño del "CUBO"
+#define CantidadMeses 12        //          
 #define CantidadCapos 1         //para definir tamaño array vendedores en vector ventas del capo
-#define RegionesCapos 1          //para definir tamaño array regiones en vector ventas del capo
+#define RegionesCapos 1         //para definir tamaño array regiones en vector ventas del capo
 #define ElCapo 0                //para definir que vendedor es el capo
 #define RegionDelCapo 0         //para definir cual es la region del capo
 #define InicioVector 16         //para setear un tamaño inicial al vector
 #define DataFileBIN "data.bin"
 #define DataFileTXT "data.txt"
+
+
+using std::array;
+using std::vector;
+using std::string;
+using std::cin;
+using std::cout;
 
 using CUBO = array<array<array<int,CantidadMeses>,CantidadVendedores>,CantidadRegiones>;
 using CUVO = array<array<array<vector<int>,CantidadMeses>,CantidadCapos>,RegionesCapos>;
@@ -131,6 +133,8 @@ CUBO ImporteMesVendedorRegion{};
 CUBO TrxMesVendedorRegion{};
 CUVO VentasDelCapo{};
 
+//::::::::MAIN:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
 int main(){
 
 assert(1 == Regiones::Sur);
@@ -167,12 +171,12 @@ MostrarVentasCapo(VentasDelCapo);
 
 void LeerDatosCIN(){
     
-    for (int Importe, Mes, Vendedor, Region;cin >> Importe >> Mes >> Vendedor >> Region;){
+    for (int Importe{}, Mes{}, Vendedor{}, Region{};cin >> Importe >> Mes >> Vendedor >> Region;){
 
     ImporteMesVendedorRegion.at(Region).at(Vendedor).at(Mes) += Importe;
     ++TrxMesVendedorRegion.at(Region).at(Vendedor).at(Mes);
 
-    if (Vendedor == ElCapo && Region == RegionDelCapo) //si hubiera mas de uno >> llamar funcion sosuncapo?
+    if (Vendedor == ElCapo && Region == RegionDelCapo) // si hubiera mas de un capo >> llamar funcion "SosUnCapo?"
     {
         GuardarVentaDelCapo(Region, Vendedor, Mes, Importe);
     }
