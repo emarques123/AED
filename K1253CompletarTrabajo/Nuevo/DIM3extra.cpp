@@ -23,6 +23,8 @@ using std::vector;
 using std::string;
 using std::cin;
 using std::cout;
+using std::ifstream;
+using std::ofstream;
 
 using CUBO = array<array<array<int,CantidadMeses>,CantidadVendedores>,CantidadRegiones>;
 using CUVO = array<array<array<vector<int>,CantidadMeses>,CantidadCapos>,RegionesCapos>;
@@ -47,6 +49,9 @@ enum Regiones{Norte, Sur, Este, Oeste, NoDefinida};
 void LeerDatosCIN();
 //hacer opcion con lectura desde test.txt y dejarla comentada "void LeerDatos(std::ifstream&)" LeerDatos:Test.txt --> ε/
 
+// LeerDatosTxt: ε --> ε/ EDL data.txt>>array
+void LeerDatosTxt();
+
 // GuardarVentaDelCapo: Z^12^1^4 --> ε/ EDL cin>>Vector
 void GuardarVentaDelCapo(const int, int, int, int);
 
@@ -55,6 +60,8 @@ void MostrarTotales(const CUBO &);
 
 // MostrarVentasCapo:Z^N^12^1^4-->ε/ EDL cout<<vector
 void MostrarVentasCapo(const CUVO &);
+
+
 
 
 
@@ -141,10 +148,10 @@ assert(1 == Regiones::Sur);
 
 //VentasDelCapo reservar vector***** hacer funcion?
 
-LeerDatosCIN();
+LeerDatosTxt();
 //MostrarTotales(ImporteMesVendedorRegion);
 
-MostrarVentasCapo(VentasDelCapo);
+MostrarTotales(ImporteMesVendedorRegion);
 
 //cout << GetPromedioVentas(0,1);
 //MostrarTotalesConFormato(TrxMesVendedorRegion);
@@ -182,6 +189,26 @@ void LeerDatosCIN(){
     }
     
 }
+}
+
+void LeerDatosTxt(){
+
+static ifstream datatxt;
+
+datatxt.open(DataFileTXT);
+
+    for (int Importe{}, Mes{}, Vendedor{}, Region{};datatxt >> Importe >> Mes >> Vendedor >> Region;){
+
+    ImporteMesVendedorRegion.at(Region).at(Vendedor).at(Mes) += Importe;
+    ++TrxMesVendedorRegion.at(Region).at(Vendedor).at(Mes);
+
+    if (Vendedor == ElCapo && Region == RegionDelCapo) // si hubiera mas de un capo >> llamar funcion "SosUnCapo?"
+    {
+        GuardarVentaDelCapo(Region, Vendedor, Mes, Importe);
+    }
+    }
+    
+datatxt.close();
 }
 
 void GuardarVentaDelCapo(const int r,const int c,const int m,const int v){
