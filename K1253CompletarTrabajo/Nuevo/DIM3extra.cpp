@@ -56,8 +56,11 @@ void LeerDatosTxt();
 // GuardarVentaDelCapo: Z^12^1^4 --> ε/ EDL cin>>Vector
 void GuardarVentaDelCapo(const int, int, int, int);
 
-
+// GuardarCuboBin: Z^12^3^4 --> ε/ EDL CUBO>>data.bin
 void GuardarCuboBin(const CUBO &);
+
+// LeerCuboBin: Z^12^3^4 --> ε/ EDL data.bin>>CUBO
+void LeerCuboBin(CUBO &);
 
 
 void GuardarVectorBin(const CUVO &);
@@ -147,19 +150,22 @@ CUBO ImporteMesVendedorRegion{};
 CUBO TrxMesVendedorRegion{};
 CUVO VentasDelCapo{};
 
+CUBO IMVRbin{};
+CUBO TMVRbin{};
+CUVO VCbin{};
 //::::::::MAIN:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 int main(){
 
 assert(1 == Regiones::Sur);
-
 //VentasDelCapo reservar vector***** hacer funcion?
 
 LeerDatosTxt();
-MostrarTotales(ImporteMesVendedorRegion);
 GuardarCuboBin(TrxMesVendedorRegion);
+LeerCuboBin(TMVRbin);
+MostrarTotales(TMVRbin);
 
-
+assert(sizeof ImporteMesVendedorRegion == sizeof TrxMesVendedorRegion);
 //cout << GetPromedioVentas(0,1);
 //MostrarTotalesConFormato(TrxMesVendedorRegion);
 
@@ -226,14 +232,18 @@ void GuardarVentaDelCapo(const int r,const int c,const int m,const int v){
 
 void GuardarCuboBin(const CUBO &array){
 
-    //constexpr auto filename{DataFileBIN};
-    //static ofstream cubobin;
-    static ofstream out{DataFileBIN, std::ios::binary}; // Connect to write.
-	WriteBlock(out, array);            // Write to out.
-	out.close();    
+    //constexpr auto filename{DataFileBIN}; << investigar
+    static ofstream ofcubobin{DataFileBIN, std::ios::binary};
+	WriteBlock(ofcubobin, array);
+	ofcubobin.close();    
 
 }
 
+void LeerCuboBin(CUBO &array){   
+    static ifstream ifcubobin{DataFileBIN, std::ios::binary};
+    ReadBlock(ifcubobin, array);
+    ifcubobin.close();
+}
 
 void GuardarVectorBin(const CUVO &vector){
 
