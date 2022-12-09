@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <cassert>
+#include "Blockstream.h"
 
 
 #define CantidadRegiones 4      //
@@ -54,6 +55,12 @@ void LeerDatosTxt();
 
 // GuardarVentaDelCapo: Z^12^1^4 --> ε/ EDL cin>>Vector
 void GuardarVentaDelCapo(const int, int, int, int);
+
+
+void GuardarCuboBin(const CUBO &);
+
+
+void GuardarVectorBin(const CUVO &);
 
 // MostrarTotales:Z^12^3^4-->ε/ EDL cout<<array
 void MostrarTotales(const CUBO &);
@@ -149,9 +156,9 @@ assert(1 == Regiones::Sur);
 //VentasDelCapo reservar vector***** hacer funcion?
 
 LeerDatosTxt();
-//MostrarTotales(ImporteMesVendedorRegion);
-
 MostrarTotales(ImporteMesVendedorRegion);
+GuardarCuboBin(ImporteMesVendedorRegion);
+
 
 //cout << GetPromedioVentas(0,1);
 //MostrarTotalesConFormato(TrxMesVendedorRegion);
@@ -214,6 +221,22 @@ datatxt.close();
 void GuardarVentaDelCapo(const int r,const int c,const int m,const int v){
 
     VentasDelCapo.at(r).at(c).at(m).push_back(v);
+}
+
+
+void GuardarCuboBin(const CUBO &array){
+
+    //constexpr auto filename{DataFileBIN};
+    //static ofstream cubobin;
+    static ofstream out{DataFileBIN, std::ios::binary}; // Connect to write.
+	WriteBlock(out, array);            // Write to out.
+	out.close();    
+
+}
+
+
+void GuardarVectorBin(const CUVO &vector){
+
 }
 
 
