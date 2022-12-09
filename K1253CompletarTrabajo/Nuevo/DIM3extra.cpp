@@ -157,7 +157,7 @@ assert(1 == Regiones::Sur);
 
 LeerDatosTxt();
 MostrarTotales(ImporteMesVendedorRegion);
-GuardarCuboBin(ImporteMesVendedorRegion);
+GuardarCuboBin(TrxMesVendedorRegion);
 
 
 //cout << GetPromedioVentas(0,1);
