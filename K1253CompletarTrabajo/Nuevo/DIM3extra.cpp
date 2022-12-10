@@ -6,7 +6,6 @@
 #include <cassert>
 #include "Blockstream.h"
 
-
 #define CantidadRegiones 4      //
 #define CantidadVendedores 3    //para definir tamaño del "CUBO"
 #define CantidadMeses 12        //          
@@ -14,10 +13,10 @@
 #define RegionesCapos 1         //para definir tamaño array regiones en vector ventas del capo
 #define ElCapo 0                //para definir que vendedor es el capo
 #define RegionDelCapo 0         //para definir cual es la region del capo
-#define InicioVector 16         //para setear un tamaño inicial al vector
-#define DataFileBIN "data.bin"
-#define DataFileTXT "data.txt"
-
+#define InicioVector 16         //para setear un tamaño inicial a cada vector
+#define ArchivoDeTexto "data.txt"
+#define DataFileBIN "data.bin"  //aca deberia haber otro para la cantidad de ventas
+#define CapoBIN "capo.bin"
 
 using std::array;
 using std::vector;
@@ -32,9 +31,30 @@ using CUVO = array<array<array<vector<int>,CantidadMeses>,CantidadCapos>,Regione
 
 enum Regiones{Norte, Sur, Este, Oeste, NoDefinida};
 
+//Listado de Vendedores, revisar si la utiliza mas de una funcion? sino pasar a static dentro de funcion, aunque se pierde visibilidad
+array<string,CantidadVendedores+1> ListaVendedores{
+    "Capo",
+    "Juan",
+    "Juana",
+    "No Definido"
+};
 
-
-
+//Listado Meses, revisar si la utiliza mas de una funcion? sino pasar a static dentro de funcion
+array<string,CantidadMeses+1> ListaMeses{
+    "Enero",
+    "Febrero",
+    "Marzo",
+    "Abril",
+    "Mayo",
+    "Junio",
+    "Julio",
+    "Agosto",
+    "Septiembre",
+    "Octubre",
+    "Noviembre",
+    "Diciembre",
+    "No Definido",
+};
 
 
 
@@ -46,30 +66,34 @@ enum Regiones{Norte, Sur, Este, Oeste, NoDefinida};
 //::Flujo de Datos:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 /* Credito Extra: Implementar las funciones LeerDatos y MostrarTotales */
 
-// LeerDatosCIN: ε --> ε/ EDL cin>>array
+// LeerDatosCIN: ε --> ε/ EDL cin->array
 void LeerDatosCIN();
 //hacer opcion con lectura desde test.txt y dejarla comentada "void LeerDatos(std::ifstream&)" LeerDatos:Test.txt --> ε/
 
-// LeerDatosTxt: ε --> ε/ EDL data.txt>>array
+// LeerDatosTxt: ε --> ε/ EDL data.txt->array
 void LeerDatosTxt();
 
-// GuardarVentaDelCapo: Z^12^1^4 --> ε/ EDL cin>>Vector
+// GuardarVentaDelCapo: Z^12^1^4 --> ε/ EDL cin->Cuvo de Vectores
 void GuardarVentaDelCapo(const int, int, int, int);
 
-// GuardarCuboBin: Z^12^3^4 --> ε/ EDL CUBO>>data.bin
+// GuardarCuboBin: Z^12^3^4 --> ε/ EDL CUBO->file.bin
 void GuardarCuboBin(const CUBO &);
 
-// LeerCuboBin: Z^12^3^4 --> ε/ EDL data.bin>>CUBO
+// LeerCuboBin: Z^12^3^4 --> ε/ EDL data.bin->CUBO
 void LeerCuboBin(CUBO &);
 
-
+// GuardarVectorBin: Z^N^12^1^4-->ε/ EDL cuvo de vectores->file.bin
 void GuardarVectorBin(const CUVO &);
 
-// MostrarTotales:Z^12^3^4-->ε/ EDL cout<<array
+// LeerVectorBIN: Z^N^12^1^4-->ε/ EDL file.bin->cuvo de vectores
+void LeerVectorBIN(CUVO &);
+
+// MostrarTotales: Z^12^3^4-->ε/ EDL cout<-array
 void MostrarTotales(const CUBO &);
 
-// MostrarVentasCapo:Z^N^12^1^4-->ε/ EDL cout<<vector
+// MostrarVentasCapo: Z^N^12^1^4-->ε/ EDL cout<-vector
 void MostrarVentasCapo(const CUVO &);
+
 
 
 
@@ -145,16 +169,17 @@ double GetPromedioVentas(int, int);
 
 
 
-
+//se alimentan desde CIN o archivo txt
 CUBO ImporteMesVendedorRegion{};
 CUBO TrxMesVendedorRegion{};
 CUVO VentasDelCapo{};
 
+//se alimentan desde archivos binarios, los diferencio para verificar facilmente si recuperan info ok dsd bin
 CUBO IMVRbin{};
 CUBO TMVRbin{};
 CUVO VCbin{};
-//::::::::MAIN:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
+//::::::::MAIN:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 int main(){
 
 assert(1 == Regiones::Sur);
@@ -164,6 +189,9 @@ LeerDatosTxt();
 GuardarCuboBin(TrxMesVendedorRegion);
 LeerCuboBin(TMVRbin);
 MostrarTotales(TMVRbin);
+GuardarVectorBin(VentasDelCapo);
+LeerVectorBIN(VCbin);
+MostrarVentasCapo(VCbin);
 
 assert(sizeof ImporteMesVendedorRegion == sizeof TrxMesVendedorRegion);
 //cout << GetPromedioVentas(0,1);
@@ -206,11 +234,11 @@ void LeerDatosCIN(){
 
 void LeerDatosTxt(){
 
-static ifstream datatxt;
+static ifstream ifdatatxt;
 
-datatxt.open(DataFileTXT);
+ifdatatxt.open(ArchivoDeTexto);
 
-    for (int Importe{}, Mes{}, Vendedor{}, Region{};datatxt >> Importe >> Mes >> Vendedor >> Region;){
+    for (int Importe{}, Mes{}, Vendedor{}, Region{};ifdatatxt >> Importe >> Mes >> Vendedor >> Region;){
 
     ImporteMesVendedorRegion.at(Region).at(Vendedor).at(Mes) += Importe;
     ++TrxMesVendedorRegion.at(Region).at(Vendedor).at(Mes);
@@ -221,7 +249,7 @@ datatxt.open(DataFileTXT);
     }
     }
     
-datatxt.close();
+ifdatatxt.close();
 }
 
 void GuardarVentaDelCapo(const int r,const int c,const int m,const int v){
@@ -245,10 +273,59 @@ void LeerCuboBin(CUBO &array){
     ifcubobin.close();
 }
 
-void GuardarVectorBin(const CUVO &vector){
+void GuardarVectorBin(const CUVO &cuvo){
+    static ofstream ofcuvobin{CapoBIN, std::ios::binary};
 
+    for(auto a : cuvo){  //itero x regiones capos, ya predefinido en #define
+        int ir{};
+        for(auto b : a){  //itero x cada capo, ya predefinido en #define
+            int ic{};
+            for(auto c : b){ //itero x cada mes, ya predefinido en #define, pero necesito marcar cuantas ventas tiene cada vector
+                int im{};
+                int cantidad{};
+                cantidad = c.size();
+                int venta{};
+                WriteBlock(ofcuvobin, cantidad);
+                for(int i{}; i < cantidad; ++i){ //itero x cada venta del mes
+                    venta = cuvo[ir][ic][im][i];
+                    WriteBlock(ofcuvobin, venta);
+                }
+                ++im;
+            }
+            ++ic;
+        }
+        ++ir;
+    }
+    ofcuvobin.close();
 }
 
+void LeerVectorBIN(CUVO &cuvo){
+    static ifstream ifcuvobin{CapoBIN, std::ios::binary};
+    int ir{};
+    for(auto r : cuvo){ //itero x regiones capos, ya predefinido en #define
+        int ic{};
+        for(auto c : r){    //itero x cada capo, ya predefinido en #define
+            int im{};
+            for(auto m : c){    //itero x cada mes, ya predefinido en #define, pero necesito marcar cuantas ventas tiene cada vector
+                int cantidad{};
+                ReadBlock(ifcuvobin, cantidad); //leo primer int indicando cantidad ventas del mes
+                cuvo.at(ir).at(ic).at(im).resize(cantidad); //acomodo capacidad del vector mes a esa cantidad
+                cuvo.at(ir).at(ic).at(im).clear();  //limpio vector destino en caso que hubiese sido utilizado previamente
+                int venta{};
+                    for(int i{}; i < cantidad; ++i){    //itero x la cantidad de ventas indicadas para ese mes
+                    ReadBlock(ifcuvobin, venta);    //leo siguientes bytes que contienen venta
+                    cuvo.at(ir).at(ic).at(im).push_back(venta); //la guardo en el cuvo de vectores
+                }
+                ++im;
+            }
+            ++ic;    
+        }
+        ++ir;    
+    }
+    ifcuvobin.close();
+
+
+}
 
 
 void MostrarTotales(const CUBO &Array){
