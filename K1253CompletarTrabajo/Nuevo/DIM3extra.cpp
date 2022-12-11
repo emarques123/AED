@@ -8,9 +8,9 @@
 
 #define CantidadRegiones 4      //
 #define CantidadVendedores 3    //para definir tamaño del "CUBO"
-#define CantidadMeses 12        //          
-#define CantidadCapos 1         //para definir tamaño array vendedores en vector ventas del capo
-#define RegionesCapos 1         //para definir tamaño array regiones en vector ventas del capo
+#define CantidadMeses 12        //     
+#define CantidadCapos 1         //para definir tamaño array vendedores en "ventas del capo"
+#define RegionesCapos 1         //para definir tamaño array regiones en "ventas del capo"
 #define ElCapo 0                //para definir que vendedor es el capo
 #define RegionDelCapo 0         //para definir cual es la region del capo
 #define InicioVector 16         //para setear un tamaño inicial a cada vector
@@ -61,9 +61,9 @@ array<string,CantidadMeses+1> ListaMeses{
 
 
 
-//:::::::::::::::::::::::::::Prototipos:::::::::::::::::::::::::::
+//:::::::::::::::::::::::::::Prototipos::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-//::Flujo de Datos:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+//::Flujo de Datos:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 /* Credito Extra: Implementar las funciones LeerDatos y MostrarTotales */
 
 // LeerDatosCIN: ε --> ε/ EDL cin->array
@@ -95,53 +95,31 @@ void MostrarTotales(const CUBO &);
 void MostrarVentasCapo(const CUVO &);
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//::Cálculo de Estadísticas::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-//::Presentación de Datos::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-/* NombreVendedor:N-->Σ* /{"ElCapo"  si 0
-                          {"Juan"    si 1
-                          {... 
-                          {"No Definido"  e.o.c */
-string NombreVendedor(unsigned);
-
-
-Regiones NumRegion(string);
-
-/* NombreRegion:Z-->Σ* /{Norte  si 0
-                        {Sur    si 1
-                        {Este   si 2
-                        {Oeste  e.o.c  */
-string NombreRegion(int);
-
-/* NombreVendedor:Z-->Σ* /{Norte  si 0
-                          {Sur    si 1
-                          {Este   si 2
-                          {Oeste  e.o.c  */
-string NombreVendedor(int);
-
-
-/*Credito Extra:Presentar las tablas lo más claro posible con formato, alineación numérica y con títulos.*/
-// MostrarTotalesConFormato:Z^12^3^4-->ε/ EDL cout<<array
-void MostrarTotalesConFormato(array<array<array<int,12>,3>,4>);
-
+//::Cálculo de Estadísticas::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 /*Credito Extra: Agregar estadísticas, por lo menos una que aplique máximo, otra mínimo, y otra promedio.*/
+
+// ObtenerMayor:Z-->Z
+int ObtenerMayor(const CUBO &);
+
+
+// ObtenerMenor:Z-->Z
+int ObtenerMenor(const CUBO &);
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+Deprecado
+*/
 //GetVendedorConMasVentas:(MESxRegion)--->Σ*/ 
 string GetVendedorConMasVentas(int, Regiones);
 
@@ -169,6 +147,55 @@ double GetPromedioVentas(int, int);
 
 
 
+
+
+
+
+
+//::Presentación de Datos::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+/* NombreVendedor:N-->Σ* /{"ElCapo"  si 0
+                          {"Juan"    si 1
+                          {... 
+                          {"No Definido"  e.o.c */
+string NombreVendedor(unsigned);
+
+
+Regiones NumRegion(string);
+
+/* NombreRegion:Z-->Σ* /{Norte  si 0
+                        {Sur    si 1
+                        {Este   si 2
+                        {Oeste  e.o.c  */
+string NombreRegion(int);
+
+/* NombreVendedor:Z-->Σ* /{Norte  si 0
+                          {Sur    si 1
+                          {Este   si 2
+                          {Oeste  e.o.c  */
+string NombreVendedor(int);
+
+
+/*Credito Extra:Presentar las tablas lo más claro posible con formato, alineación numérica y con títulos.*/
+// MostrarTotalesConFormato:Z^12^3^4-->ε/ EDL cout<<array
+void MostrarTotalesConFormato(const CUBO &);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //se alimentan desde CIN o archivo txt
 CUBO ImporteMesVendedorRegion{};
 CUBO TrxMesVendedorRegion{};
@@ -179,16 +206,16 @@ CUBO IMVRbin{};
 CUBO TMVRbin{};
 CUVO VCbin{};
 
-//::::::::MAIN:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+//::::::::MAIN:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 int main(){
 
 assert(1 == Regiones::Sur);
 //VentasDelCapo reservar vector***** hacer funcion?
 
 LeerDatosTxt();
-GuardarCuboBin(TrxMesVendedorRegion);
-LeerCuboBin(TMVRbin);
-MostrarTotales(TMVRbin);
+GuardarCuboBin(ImporteMesVendedorRegion);
+LeerCuboBin(IMVRbin);
+MostrarTotalesConFormato(IMVRbin);
 GuardarVectorBin(VentasDelCapo);
 LeerVectorBIN(VCbin);
 MostrarVentasCapo(VCbin);
@@ -213,9 +240,9 @@ assert(sizeof ImporteMesVendedorRegion == sizeof TrxMesVendedorRegion);
 
 
 
-//:::::::::::::::::::::::Implementaciones::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+//:::::::::::::::::::::::Implementaciones::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-//::Flujo de Datos:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+//::Flujo de Datos:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 void LeerDatosCIN(){
     
@@ -354,6 +381,24 @@ for( auto r : vector) {
 }
 }
 
+//::Cálculo de Estadísticas::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+//::Stats Simples::::::::: (mejor/peor Región, Vendedor, Mes) 
+//Plan A: stats en 2 pasos: iterar buscando mayor/menor venta, luego iterar 
+
+int ObtenerMayor(const CUBO &cubo){
+
+}
+
+int ObtenerMenor(const CUBO &cubo){
+
+}
+
+
+
+
+
+//::Stats Simples::::::::: Plan B (combinar pasos plan A y evitar segunda iteracion x cubo)
 
 
 
@@ -362,19 +407,11 @@ for( auto r : vector) {
 
 
 
-
-
-
-
-
-
-
-
-//::Presentación de Datos::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-void MostrarTotalesConFormato(array<array<array<int,12>,3>,4> Array){
+//::Presentación de Datos::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+void MostrarTotalesConFormato(const CUBO &cubo){
 int ir{0};
 cout << "Las ventas totales por Region, Vendedor y Meses son:\n";
-for( auto r : Array) {
+for( auto r : cubo) {
     int iv{0};
 
     cout << '\t' << "Region: " << NombreRegion(ir) << '\n' 
@@ -431,16 +468,11 @@ unsigned NumVendedor(string NombreVendedor){
 
 
 
+/*
+Deprecado
+*/
 
 
-
-
-
-
-
-
-
-//::Cálculo de Estadísticas::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 string GetVendedorConMasVentas(int Mes, Regiones Region){
     int A, B, C;
     
