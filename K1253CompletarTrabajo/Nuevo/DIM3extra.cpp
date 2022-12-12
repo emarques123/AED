@@ -28,6 +28,7 @@ using std::ofstream;
 
 using CUBO = array<array<array<int,CantidadMeses>,CantidadVendedores>,CantidadRegiones>;
 using CUVO = array<array<array<vector<int>,CantidadMeses>,CantidadCapos>,RegionesCapos>;
+using V3 = array<vector<int>,3>; //para mostrar stats
 
 enum Regiones{Norte, Sur, Este, Oeste, NoDefinida};
 
@@ -99,11 +100,14 @@ void MostrarVentasCapo(const CUVO &);
 /*Credito Extra: Agregar estadísticas, por lo menos una que aplique máximo, otra mínimo, y otra promedio.*/
 
 // ObtenerMayor:Z-->Z
-int ObtenerMayor(const CUBO &);
+V3 ObtenerMejores(const CUBO &);
 
 
 // ObtenerMenor:Z-->Z
-int ObtenerMenor(const CUBO &);
+V3 ObtenerPeores(const CUBO &);
+
+// 
+
 
 
 
@@ -386,11 +390,11 @@ for( auto r : vector) {
 //::Stats Simples::::::::: (mejor/peor Región, Vendedor, Mes) 
 //Plan A: stats en 2 pasos: iterar buscando mayor/menor venta, luego iterar 
 
-int ObtenerMayor(const CUBO &cubo){
+V3 ObtenerMejores(const CUBO &cubo){
 
 }
 
-int ObtenerMenor(const CUBO &cubo){
+V3 ObtenerPeores(const CUBO &cubo){
 
 }
 
