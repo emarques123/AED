@@ -30,7 +30,14 @@ using CUBO = array<array<array<int,CantidadMeses>,CantidadVendedores>,CantidadRe
 using CUVO = array<array<array<vector<int>,CantidadMeses>,CantidadCapos>,RegionesCapos>;
 using V3 = array<vector<int>,3>; //para mostrar stats
 
+struct TotalesCubo{
+array<int,CantidadMeses> Meses;
+array<int,CantidadVendedores> Vendedores;
+array<int,CantidadRegiones> Regiones;
+};
+
 enum Regiones{Norte, Sur, Este, Oeste, NoDefinida};
+enum MayorMenorIgual{Menor = -1, Igual = 0, Mayor = 1};
 
 //Listado de Vendedores, revisar si la utiliza mas de una funcion? sino pasar a static dentro de funcion, aunque se pierde visibilidad
 array<string,CantidadVendedores+1> ListaVendedores{
@@ -96,17 +103,26 @@ void MostrarTotales(const CUBO &);
 void MostrarVentasCapo(const CUVO &);
 
 
+
+
+
 //::Cálculo de Estadísticas::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 /*Credito Extra: Agregar estadísticas, por lo menos una que aplique máximo, otra mínimo, y otra promedio.*/
 
-// ObtenerMayor:Z-->Z
-V3 ObtenerMejores(const CUBO &);
+//CompararValores: Z^Z --> {1,0,-1}
+MayorMenorIgual CompararValores(const int, const int);
+
+//CalcularTotales: Z^12^3^4 --> (Z^12,Z^3,Z^4) *completar
+TotalesCubo CalcularTotales(const CUBO &);
 
 
-// ObtenerMenor:Z-->Z
-V3 ObtenerPeores(const CUBO &);
+// ObtenerMejores:(Z^12,Z^3,Z^4)-->Z^N^3
+array<int,3> ObtenerMejores(const TotalesCubo &);
 
-// 
+
+// ObtenerPeores:(Z^12,Z^3,Z^4)-->Z^N^3
+array<int,3> ObtenerPeores(const TotalesCubo &);
+
 
 
 
@@ -390,19 +406,90 @@ for( auto r : vector) {
 //::Stats Simples::::::::: (mejor/peor Región, Vendedor, Mes) 
 //Plan A: stats en 2 pasos: iterar buscando mayor/menor venta, luego iterar 
 
-V3 ObtenerMejores(const CUBO &cubo){
+/*
+struct TotalesCubo{
+array<int,CantidadMeses> Meses;
+array<int,CantidadVendedores> Vendedores;
+array<int,CantidadRegiones> Regiones;
+};
+*/
+MayorMenorIgual CompararValores(const int a,const int b){
+    return
+    a > b?  MayorMenorIgual::Mayor:
+    a == b? MayorMenorIgual::Igual:MayorMenorIgual::Menor;
+}
+
+
+TotalesCubo CalcularTotales(const CUBO &cubo){
+    TotalesCubo totales{};
+    for(int ir{};ir < CantidadRegiones; ++ir){
+
+        for(int iv{}; iv < CantidadVendedores; ++iv){
+
+            for(int im{}; im < CantidadMeses; ++im){
+
+                totales.Meses.at(im) =+ cubo[ir][iv][im];
+                totales.Meses.at(iv) =+ cubo[ir][iv][im];
+                totales.Meses.at(ir) =+ cubo[ir][iv][im];
+
+            }
+        }
+    }
+    return totales;
+}
+
+
+array<int,3> ObtenerMejores(const TotalesCubo &tcubo){
+    int mejormes{},
+        mejorvendedor{},
+        mejorregion{};    
+
+    for(int im{}; im < CantidadMeses; ++im){
+        if (CompararValores(mejormes, tcubo.Meses.at(im))!=MayorMenorIgual::Menor){
+            mejormes = tcubo.Meses.at(im);        
+        }
+        }
+    for(int iv{}; iv < CantidadVendedores; ++iv){
+        if (CompararValores(mejorvendedor, tcubo.Vendedores.at(iv))!=MayorMenorIgual::Menor){
+            mejorvendedor = tcubo.Vendedores.at(iv);        
+        }
+        }
+    for(int ir{}; ir < CantidadMeses; ++ir){
+        if (CompararValores(mejorregion, tcubo.Regiones.at(ir))!=MayorMenorIgual::Menor){
+            mejorregion = tcubo.Regiones.at(ir);        
+        }
+        }
+    
+    array<int,3> mejores{mejormes, mejorvendedor, mejorregion};
+    return mejores;
+}    
+
+array<int,3> ObtenerPeores(const TotalesCubo &Tcubo){
 
 }
 
-V3 ObtenerPeores(const CUBO &cubo){
 
-}
+
 
 
 
 
 
 //::Stats Simples::::::::: Plan B (combinar pasos plan A y evitar segunda iteracion x cubo)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
