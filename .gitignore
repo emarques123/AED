@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+.vscode/tasks.json
+K1253CompletarTrabajo/Nuevo/data.bin
+*.bin
+*.json
