@@ -13,9 +13,9 @@
 #define RegionesCapos 1         //para definir tamaño array regiones en "ventas del capo"
 #define ElCapo 0                //para definir que vendedor es el capo
 #define RegionDelCapo 0         //para definir cual es la region del capo
-#define InicioVector 16         //para setear un tamaño inicial a cada vector
+#define InicioVector 16         //para setear un tamaño inicial a cada mes-vector del capo           *revisar
 #define ArchivoDeTexto "data.txt"
-#define DataFileBIN "data.bin"  //aca deberia haber otro para la cantidad de ventas
+#define DataFileBIN "data.bin"  //aca deberia haber otro para la cantidad de ventas             *revisar
 #define CapoBIN "capo.bin"
 
 using std::array;
@@ -110,22 +110,29 @@ void MostrarVentasCapo(const CUVO &);
 /*Credito Extra: Agregar estadísticas, por lo menos una que aplique máximo, otra mínimo, y otra promedio.*/
 
 //CompararValores: Z^Z --> {1,0,-1}
-MayorMenorIgual CompararValores(const int, const int);
+MayorMenorIgual CompararValores(const int &, const int &);
 
 //CalcularTotales: Z^12^3^4 --> (Z^12,Z^3,Z^4) *completar
 TotalesCubo CalcularTotales(const CUBO &);
 
-
-// ObtenerMejores:(Z^12,Z^3,Z^4)-->Z^N^3
+// ObtenerMejores:(Z^12,Z^3,Z^4)-->Z^3
 array<int,3> ObtenerMejores(const TotalesCubo &);
 
-
-// ObtenerPeores:(Z^12,Z^3,Z^4)-->Z^N^3
+// ObtenerPeores:(Z^12,Z^3,Z^4)-->Z^3
 array<int,3> ObtenerPeores(const TotalesCubo &);
 
+// BuscarCoincidencia: Z^3-->Z^N^3
+V3 BuscarCoincidencia(const array<int,3> &, const TotalesCubo &);
+
+// MostrarV3: Z^N^3 -->ε/ EDL cout<-array
+void MostrarV3(const V3 &);
+
+//
+void MostrarTotalesCubo(const TotalesCubo &);
 
 
-
+//
+void MostrarMejores(const CUBO &);
 
 
 
@@ -241,6 +248,14 @@ LeerVectorBIN(VCbin);
 MostrarVentasCapo(VCbin);
 
 assert(sizeof ImporteMesVendedorRegion == sizeof TrxMesVendedorRegion);
+
+MostrarTotalesCubo(CalcularTotales(ImporteMesVendedorRegion));
+
+
+//MostrarV3(BuscarCoincidencia(ObtenerMejores(CalcularTotales(IMVRbin)),(CalcularTotales(IMVRbin))));
+MostrarV3(BuscarCoincidencia(ObtenerPeores(CalcularTotales(IMVRbin)),(CalcularTotales(IMVRbin))));
+
+
 //cout << GetPromedioVentas(0,1);
 //MostrarTotalesConFormato(TrxMesVendedorRegion);
 
@@ -406,14 +421,8 @@ for( auto r : vector) {
 //::Stats Simples::::::::: (mejor/peor Región, Vendedor, Mes) 
 //Plan A: stats en 2 pasos: iterar buscando mayor/menor venta, luego iterar 
 
-/*
-struct TotalesCubo{
-array<int,CantidadMeses> Meses;
-array<int,CantidadVendedores> Vendedores;
-array<int,CantidadRegiones> Regiones;
-};
-*/
-MayorMenorIgual CompararValores(const int a,const int b){
+
+MayorMenorIgual CompararValores(const int &a,const int &b){
     return
     a > b?  MayorMenorIgual::Mayor:
     a == b? MayorMenorIgual::Igual:MayorMenorIgual::Menor;
@@ -428,9 +437,9 @@ TotalesCubo CalcularTotales(const CUBO &cubo){
 
             for(int im{}; im < CantidadMeses; ++im){
 
-                totales.Meses.at(im) =+ cubo[ir][iv][im];
-                totales.Meses.at(iv) =+ cubo[ir][iv][im];
-                totales.Meses.at(ir) =+ cubo[ir][iv][im];
+                totales.Meses.at(im) += cubo[ir][iv][im];
+                totales.Vendedores.at(iv) += cubo[ir][iv][im];
+                totales.Regiones.at(ir) += cubo[ir][iv][im];
 
             }
         }
@@ -445,32 +454,112 @@ array<int,3> ObtenerMejores(const TotalesCubo &tcubo){
         mejorregion{};    
 
     for(int im{}; im < CantidadMeses; ++im){
-        if (CompararValores(mejormes, tcubo.Meses.at(im))!=MayorMenorIgual::Menor){
+        if (CompararValores(tcubo.Meses.at(im), mejormes)!=MayorMenorIgual::Menor){
             mejormes = tcubo.Meses.at(im);        
         }
-        }
+    }
     for(int iv{}; iv < CantidadVendedores; ++iv){
-        if (CompararValores(mejorvendedor, tcubo.Vendedores.at(iv))!=MayorMenorIgual::Menor){
+        if (CompararValores(tcubo.Vendedores.at(iv), mejorvendedor)!=MayorMenorIgual::Menor){
             mejorvendedor = tcubo.Vendedores.at(iv);        
         }
-        }
-    for(int ir{}; ir < CantidadMeses; ++ir){
-        if (CompararValores(mejorregion, tcubo.Regiones.at(ir))!=MayorMenorIgual::Menor){
+    }
+    for(int ir{}; ir < CantidadRegiones; ++ir){
+        if (CompararValores(tcubo.Regiones.at(ir), mejorregion)!=MayorMenorIgual::Menor){
             mejorregion = tcubo.Regiones.at(ir);        
         }
-        }
+    }
     
     array<int,3> mejores{mejormes, mejorvendedor, mejorregion};
     return mejores;
 }    
 
-array<int,3> ObtenerPeores(const TotalesCubo &Tcubo){
+array<int,3> ObtenerPeores(const TotalesCubo &tcubo){
+    int peormes{999},
+        peorvendedor{999},
+        peorregion{999}; //cambiar asignacion ninguna dimension es menor a 0  
+
+    for(int im{}; im < CantidadMeses; ++im){
+        if (CompararValores(tcubo.Meses.at(im), peormes)!=MayorMenorIgual::Mayor){
+            peormes = tcubo.Meses.at(im);        
+        }
+    }
+    for(int iv{}; iv < CantidadVendedores; ++iv){
+        if (CompararValores(tcubo.Vendedores.at(iv), peorvendedor)!=MayorMenorIgual::Mayor){
+            peorvendedor = tcubo.Vendedores.at(iv);        
+        }
+    }
+    for(int ir{}; ir < CantidadRegiones; ++ir){
+        if (CompararValores(tcubo.Regiones.at(ir), peorregion)!=MayorMenorIgual::Mayor){
+            peorregion = tcubo.Regiones.at(ir);        
+        }
+    }
+    
+    array<int,3> peores{peormes, peorvendedor, peorregion};
+    return peores;    
 
 }
 
+V3 BuscarCoincidencia(const array<int,3> &array, const TotalesCubo &tcubo){
+    V3 vector{};
+    
+    for(int im{}; im < CantidadMeses; ++im){
+        if (CompararValores(array[0], tcubo.Meses.at(im))==MayorMenorIgual::Igual){
+            vector[0].push_back(im);        
+        }
+    }
+    for(int iv{}; iv < CantidadVendedores; ++iv){
+        if (CompararValores(array[1], tcubo.Vendedores.at(iv))==MayorMenorIgual::Igual){
+            vector[1].push_back(iv);        
+        }
+    }
+    for(int ir{}; ir < CantidadRegiones; ++ir){
+        if (CompararValores(array[2], tcubo.Regiones.at(ir))==MayorMenorIgual::Igual){
+            vector[2].push_back(ir);        
+        }
+    }
+    return vector;
+}
 
+void MostrarV3(const V3 &vector){
 
+    for (auto v : vector){
+        for (auto i : v){
+            cout << i << " ";
+        }
+        cout << '\n';    
+    }
+}
 
+void MostrarTotalesCubo(const TotalesCubo &tcubo){
+
+    for (size_t i = 0; i < CantidadMeses; ++i)
+    {
+        cout << tcubo.Meses.at(i) << ' ';
+    }
+    cout << '\n';
+    for (size_t i = 0; i < CantidadVendedores; ++i)
+    {
+        cout << tcubo.Vendedores.at(i) << ' ';
+    }    
+    cout << '\n';
+    for (size_t i = 0; i < CantidadRegiones; ++i)
+    {
+        cout << tcubo.Regiones.at(i) << ' ';
+    }
+    cout << '\n';
+}
+    
+/*
+struct TotalesCubo{
+array<int,CantidadMeses> Meses;
+array<int,CantidadVendedores> Vendedores;
+array<int,CantidadRegiones> Regiones;
+};
+*/
+
+void MostrarMejores(const CUBO &){
+
+}
 
 
 
