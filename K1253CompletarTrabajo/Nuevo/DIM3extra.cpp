@@ -28,7 +28,7 @@ using std::ofstream;
 
 using CUBO = array<array<array<int,CantidadMeses>,CantidadVendedores>,CantidadRegiones>;
 using CUVO = array<array<array<vector<int>,CantidadMeses>,CantidadCapos>,RegionesCapos>;
-using V3 = array<vector<int>,3>; //para mostrar stats
+using V3 = array<vector<int>,3>; //para mostrar stats. Dimensiones x Vector{ValorDeReferencia, coincidencia, ..., coincidencia}
 
 struct TotalesCubo{
 array<int,CantidadMeses> Meses;
@@ -39,7 +39,7 @@ array<int,CantidadRegiones> Regiones;
 enum Regiones{Norte, Sur, Este, Oeste, NoDefinida};
 enum MayorMenorIgual{Menor = -1, Igual = 0, Mayor = 1};
 
-//Listado de Vendedores, revisar si la utiliza mas de una funcion? sino pasar a static dentro de funcion, aunque se pierde visibilidad
+//Listado de Vendedores, revisar si la utiliza mas de una funcion? sino pasar a static dentro de funcion, aunque quizas pierde visibilidad
 array<string,CantidadVendedores+1> ListaVendedores{
     "Capo",
     "Juan",
@@ -64,6 +64,22 @@ array<string,CantidadMeses+1> ListaMeses{
     "No Definido",
 };
 
+//Listado Meses, revisar si la utiliza mas de una funcion? sino pasar a static dentro de funcion
+array<string,CantidadMeses+1> ListaMesesAbrev{
+    "Ene",
+    "Feb",
+    "Mar",
+    "Abr",
+    "May",
+    "Jun",
+    "Jul",
+    "Ago",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dic",
+    "No Def",
+};
 
 
 
@@ -91,10 +107,10 @@ void GuardarCuboBin(const CUBO &);
 void LeerCuboBin(CUBO &);
 
 // GuardarVectorBin: Z^N^12^1^4-->ε/ EDL cuvo de vectores->file.bin
-void GuardarVectorBin(const CUVO &);
+void GuardarCuvoBin(const CUVO &);
 
 // LeerVectorBIN: Z^N^12^1^4-->ε/ EDL file.bin->cuvo de vectores
-void LeerVectorBIN(CUVO &);
+void LeerCuvoBIN(CUVO &);
 
 // MostrarTotales: Z^12^3^4-->ε/ EDL cout<-array
 void MostrarTotales(const CUBO &);
@@ -121,13 +137,15 @@ array<int,3> ObtenerMejores(const TotalesCubo &);
 // ObtenerPeores:(Z^12,Z^3,Z^4)-->Z^3
 array<int,3> ObtenerPeores(const TotalesCubo &);
 
-// BuscarCoincidencia: Z^3-->Z^N^3
+// BuscarCoincidencia: Z^3,(Z^12,Z^3,Z^4)-->Z^N^3
 V3 BuscarCoincidencia(const array<int,3> &, const TotalesCubo &);
 
-// MostrarV3: Z^N^3 -->ε/ EDL cout<-array
+
+
+// MostrarV3: Z^N^3 -->ε/ EDL cout<<V3
 void MostrarV3(const V3 &);
 
-//
+// MostrarTotalesCubo: (Z^12,Z^3,Z^4)-->ε/ EDL cout<<Totales Cubo
 void MostrarTotalesCubo(const TotalesCubo &);
 
 
@@ -145,7 +163,7 @@ void MostrarMejores(const CUBO &);
 
 
 /*
-Deprecado
+Deprecado?
 */
 //GetVendedorConMasVentas:(MESxRegion)--->Σ*/ 
 string GetVendedorConMasVentas(int, Regiones);
@@ -188,8 +206,6 @@ double GetPromedioVentas(int, int);
 string NombreVendedor(unsigned);
 
 
-Regiones NumRegion(string);
-
 /* NombreRegion:Z-->Σ* /{Norte  si 0
                         {Sur    si 1
                         {Este   si 2
@@ -204,7 +220,7 @@ string NombreVendedor(int);
 
 
 /*Credito Extra:Presentar las tablas lo más claro posible con formato, alineación numérica y con títulos.*/
-// MostrarTotalesConFormato:Z^12^3^4-->ε/ EDL cout<<array
+// MostrarTotalesConFormato:Z^12^3^4-->ε/ EDL cout<<CUBO
 void MostrarTotalesConFormato(const CUBO &);
 
 
@@ -243,16 +259,19 @@ LeerDatosTxt();
 GuardarCuboBin(ImporteMesVendedorRegion);
 LeerCuboBin(IMVRbin);
 MostrarTotalesConFormato(IMVRbin);
-GuardarVectorBin(VentasDelCapo);
-LeerVectorBIN(VCbin);
+GuardarCuvoBin(VentasDelCapo);
+LeerCuvoBIN(VCbin);
 MostrarVentasCapo(VCbin);
 
 assert(sizeof ImporteMesVendedorRegion == sizeof TrxMesVendedorRegion);
 
+cout << "Totales:\n";
 MostrarTotalesCubo(CalcularTotales(ImporteMesVendedorRegion));
 
+cout << "Mejores:\n";
+MostrarV3(BuscarCoincidencia(ObtenerMejores(CalcularTotales(IMVRbin)),(CalcularTotales(IMVRbin))));
 
-//MostrarV3(BuscarCoincidencia(ObtenerMejores(CalcularTotales(IMVRbin)),(CalcularTotales(IMVRbin))));
+cout << "Peores:\n";
 MostrarV3(BuscarCoincidencia(ObtenerPeores(CalcularTotales(IMVRbin)),(CalcularTotales(IMVRbin))));
 
 
@@ -335,7 +354,7 @@ void LeerCuboBin(CUBO &array){
     ifcubobin.close();
 }
 
-void GuardarVectorBin(const CUVO &cuvo){
+void GuardarCuvoBin(const CUVO &cuvo){
     static ofstream ofcuvobin{CapoBIN, std::ios::binary};
 
     for(auto a : cuvo){  //itero x regiones capos, ya predefinido en #define
@@ -361,7 +380,7 @@ void GuardarVectorBin(const CUVO &cuvo){
     ofcuvobin.close();
 }
 
-void LeerVectorBIN(CUVO &cuvo){
+void LeerCuvoBIN(CUVO &cuvo){
     static ifstream ifcuvobin{CapoBIN, std::ios::binary};
     int ir{};
     for(auto r : cuvo){ //itero x regiones capos, ya predefinido en #define
@@ -449,9 +468,9 @@ TotalesCubo CalcularTotales(const CUBO &cubo){
 
 
 array<int,3> ObtenerMejores(const TotalesCubo &tcubo){
-    int mejormes{},
-        mejorvendedor{},
-        mejorregion{};    
+    int mejormes{tcubo.Meses.at(0)},
+        mejorvendedor{tcubo.Vendedores.at(0)},
+        mejorregion{tcubo.Regiones.at(0)};    
 
     for(int im{}; im < CantidadMeses; ++im){
         if (CompararValores(tcubo.Meses.at(im), mejormes)!=MayorMenorIgual::Menor){
@@ -474,9 +493,9 @@ array<int,3> ObtenerMejores(const TotalesCubo &tcubo){
 }    
 
 array<int,3> ObtenerPeores(const TotalesCubo &tcubo){
-    int peormes{999},
-        peorvendedor{999},
-        peorregion{999}; //cambiar asignacion ninguna dimension es menor a 0  
+    int peormes{tcubo.Meses.at(0)},
+        peorvendedor{tcubo.Vendedores.at(0)},
+        peorregion{tcubo.Regiones.at(0)};
 
     for(int im{}; im < CantidadMeses; ++im){
         if (CompararValores(tcubo.Meses.at(im), peormes)!=MayorMenorIgual::Mayor){
@@ -501,6 +520,10 @@ array<int,3> ObtenerPeores(const TotalesCubo &tcubo){
 
 V3 BuscarCoincidencia(const array<int,3> &array, const TotalesCubo &tcubo){
     V3 vector{};
+
+    for(int i{}; i < 3; ++i){
+        vector[i].push_back(array.at(i));
+    }
     
     for(int im{}; im < CantidadMeses; ++im){
         if (CompararValores(array[0], tcubo.Meses.at(im))==MayorMenorIgual::Igual){
@@ -549,14 +572,6 @@ void MostrarTotalesCubo(const TotalesCubo &tcubo){
     cout << '\n';
 }
     
-/*
-struct TotalesCubo{
-array<int,CantidadMeses> Meses;
-array<int,CantidadVendedores> Vendedores;
-array<int,CantidadRegiones> Regiones;
-};
-*/
-
 void MostrarMejores(const CUBO &){
 
 }
@@ -564,7 +579,7 @@ void MostrarMejores(const CUBO &){
 
 
 
-//::Stats Simples::::::::: Plan B (combinar pasos plan A y evitar segunda iteracion x cubo)
+//::Stats Simples::::::::: Plan B (combinar pasos plan A y evitar segunda iteracion x TotalesCubo)
 
 
 
@@ -616,28 +631,16 @@ string NombreRegion(int numr){
    return numr == Regiones::Norte? "Norte":
           numr == Regiones::Sur?   "Sur":
           numr == Regiones::Este?  "Este": 
-                                   "Oeste";
+          numr == Regiones::Oeste? "Oeste":
+                                   "No Definida";
 }
 
-Regiones NumRegion(string nomr){
-    return nomr == "Norte"? Norte:
-           nomr == "Sur"?   Sur:
-           nomr == "Este"?  Este:
-           nomr == "Oeste"? Oeste:
-                            NoDefinida; // para evitar que cualquier string entre como "Oeste"
-}
+
 
 string NombreVendedor(int numv){
     return numv == 0 ? "Juan":
            numv == 1 ? "Juana":
                        "Jorge";
-}
-
-unsigned NumVendedor(string NombreVendedor){
-    return NombreVendedor == "Juan"?    0:
-           NombreVendedor == "Juana"?   1:
-           NombreVendedor == "Jorge"?   2:
-                                        3;// para evitar que cualquier otro string pase como "Jorge"
 }
 
 
