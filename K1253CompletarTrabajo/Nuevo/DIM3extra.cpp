@@ -41,44 +41,44 @@ enum MayorMenorIgual{Menor = -1, Igual = 0, Mayor = 1};
 
 //Listado de Vendedores, revisar si la utiliza mas de una funcion? sino pasar a static dentro de funcion, aunque quizas pierde visibilidad
 array<string,CantidadVendedores+1> ListaVendedores{
-    "Capo",
-    "Juan",
-    "Juana",
+    "Capo",         //0
+    "Juan",         //1
+    "Juana",        //2
     "No Definido"
 };
 
 //Listado Meses, revisar si la utiliza mas de una funcion? sino pasar a static dentro de funcion
 array<string,CantidadMeses+1> ListaMeses{
-    "Enero",
-    "Febrero",
-    "Marzo",
-    "Abril",
-    "Mayo",
-    "Junio",
-    "Julio",
-    "Agosto",
-    "Septiembre",
-    "Octubre",
-    "Noviembre",
-    "Diciembre",
-    "No Definido",
+    "Enero",        //0
+    "Febrero",      //1
+    "Marzo",        //2
+    "Abril",        //3
+    "Mayo",         //4
+    "Junio",        //5
+    "Julio",        //6
+    "Agosto",       //7
+    "Septiembre",   //8
+    "Octubre",      //9
+    "Noviembre",    //10
+    "Diciembre",    //11
+    "No Definido",  
 };
 
 //Listado Meses, revisar si la utiliza mas de una funcion? sino pasar a static dentro de funcion
 array<string,CantidadMeses+1> ListaMesesAbrev{
-    "Ene",
-    "Feb",
-    "Mar",
-    "Abr",
-    "May",
-    "Jun",
-    "Jul",
-    "Ago",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dic",
-    "No Def",
+    "Ene",      //0
+    "Feb",      //1
+    "Mar",      //2
+    "Abr",      //3
+    "May",      //4
+    "Jun",      //5
+    "Jul",      //6
+    "Ago",      //7
+    "Sep",      //8
+    "Oct",      //9
+    "Nov",      //10
+    "Dic",      //11
+    "No Def",   
 };
 
 
@@ -149,7 +149,8 @@ void MostrarV3(const V3 &);
 void MostrarTotalesCubo(const TotalesCubo &);
 
 
-//
+
+// para agrupar funciones modulares y no tener que anidar llamados en main
 void MostrarMejores(const CUBO &);
 
 
@@ -579,6 +580,46 @@ void MostrarMejores(const CUBO &){
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//no funciona, tira 100 siempre, revisar!
+double GetPromedioVentas(int Desde, int Hasta){
+
+double Sumatoria{0}, Contador{0};
+int ir{0};
+
+for ( auto r : ImporteMesVendedorRegion) { 
+    int iv{0};
+    for (auto v : r){
+        //for (auto t : v){
+        for (; Desde <= Hasta; ++Desde){
+            Sumatoria += ImporteMesVendedorRegion[ir][iv].at(Desde);
+            Contador += TrxMesVendedorRegion[ir][iv].at(Desde);
+        }
+        ++iv;
+    }
+    ++ir;
+}
+//return Contador == 0? 0:(Sumatoria/Contador);
+cout << Contador << " "<< Sumatoria;
+return 0;
+}
+
 //::Stats Simples::::::::: Plan B (combinar pasos plan A y evitar segunda iteracion x TotalesCubo)
 
 
@@ -638,79 +679,7 @@ string NombreRegion(int numr){
 
 
 string NombreVendedor(int numv){
-    return numv == 0 ? "Juan":
-           numv == 1 ? "Juana":
-                       "Jorge";
+    return ListaVendedores.at(numv);
 }
 
 
-
-
-
-
-
-
-
-/*
-Deprecado
-*/
-
-
-string GetVendedorConMasVentas(int Mes, Regiones Region){
-    int A, B, C;
-    
-    A = ImporteMesVendedorRegion.at(Region)[0].at(Mes);
-    B = ImporteMesVendedorRegion.at(Region)[1].at(Mes);
-    C = ImporteMesVendedorRegion.at(Region)[2].at(Mes);
-
-    return 
-    (A == B) && (A == C)? "Todos tienen la misma venta":
-    (A > B) && (A > C)? "Juan":
-    (B > A) && (B > C)? "Juana":
-    (C > A) && (C > B)? "Jorge":
-    (A == B) && (A > C)? "Juan y Juana":
-    (A == C) && (A > B)? "Juan y Jorge":
-    (B == C) && (B > A)? "Juana y Jorge":"Algo falló";
-    
-}
-
-string GetVendedorConMenosVentas(int Mes, Regiones Region){
-    int A, B, C;
-    
-    A = ImporteMesVendedorRegion.at(Region)[0].at(Mes);
-    B = ImporteMesVendedorRegion.at(Region)[1].at(Mes);
-    C = ImporteMesVendedorRegion.at(Region)[2].at(Mes);
-
-    return 
-    (A == B) && (A == C)? "Todos tienen la misma venta":
-    (A < B) && (A < C)? "Juan":
-    (B < A) && (B < C)? "Juana":
-    (C < A) && (C < B)? "Jorge":
-    (A == B) && (A < C)? "Juan y Juana":
-    (A == C) && (A < B)? "Juan y Jorge":
-    (B == C) && (B < A)? "Juana y Jorge":"Algo falló";
-
-}
-
-//no funciona, tira 100 siempre, revisar!
-double GetPromedioVentas(int Desde, int Hasta){
-
-double Sumatoria{0}, Contador{0};
-int ir{0};
-
-for ( auto r : ImporteMesVendedorRegion) { 
-    int iv{0};
-    for (auto v : r){
-        //for (auto t : v){
-        for (; Desde <= Hasta; ++Desde){
-            Sumatoria += ImporteMesVendedorRegion[ir][iv].at(Desde);
-            Contador += TrxMesVendedorRegion[ir][iv].at(Desde);
-        }
-        ++iv;
-    }
-    ++ir;
-}
-//return Contador == 0? 0:(Sumatoria/Contador);
-cout << Contador << " "<< Sumatoria;
-return 0;
-}
