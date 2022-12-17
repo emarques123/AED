@@ -40,15 +40,14 @@ enum Regiones{Norte, Sur, Este, Oeste, NoDefinida};
 enum MayorMenorIgual{Menor = -1, Igual = 0, Mayor = 1};
 
 //Listado de Vendedores, revisar si la utiliza mas de una funcion? sino pasar a static dentro de funcion, aunque quizas pierde visibilidad
-array<string,CantidadVendedores+1> ListaVendedores{
+array<string,CantidadVendedores> ListaVendedores{
     "Capo",         //0
     "Juan",         //1
     "Juana",        //2
-    "No Definido"
 };
 
 //Listado Meses, revisar si la utiliza mas de una funcion? sino pasar a static dentro de funcion
-array<string,CantidadMeses+1> ListaMeses{
+array<string,CantidadMeses> ListaMeses{
     "Enero",        //0
     "Febrero",      //1
     "Marzo",        //2
@@ -61,11 +60,10 @@ array<string,CantidadMeses+1> ListaMeses{
     "Octubre",      //9
     "Noviembre",    //10
     "Diciembre",    //11
-    "No Definido",  
 };
 
 //Listado Meses, revisar si la utiliza mas de una funcion? sino pasar a static dentro de funcion
-array<string,CantidadMeses+1> ListaMesesAbrev{
+array<string,CantidadMeses> ListaMesesAbrev{
     "Ene",      //0
     "Feb",      //1
     "Mar",      //2
@@ -78,7 +76,6 @@ array<string,CantidadMeses+1> ListaMesesAbrev{
     "Oct",      //9
     "Nov",      //10
     "Dic",      //11
-    "No Def",   
 };
 
 
@@ -200,24 +197,25 @@ double GetPromedioVentas(int, int);
 
 //::Presentación de Datos::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-/* NombreVendedor:N-->Σ* /{"ElCapo"  si 0
-                          {"Juan"    si 1
-                          {... 
-                          {"No Definido"  e.o.c */
-string NombreVendedor(unsigned);
-
 
 /* NombreRegion:Z-->Σ* /{Norte  si 0
                         {Sur    si 1
                         {Este   si 2
-                        {Oeste  e.o.c  */
-string NombreRegion(int);
+                        {Oeste  si 3
+                        {No Def e.o.c  */
+string NombreRegion(const int);
 
-/* NombreVendedor:Z-->Σ* /{Norte  si 0
-                          {Sur    si 1
-                          {Este   si 2
-                          {Oeste  e.o.c  */
-string NombreVendedor(int);
+/* NombreVendedor:Z-->Σ* /{"ElCapo"  si 0
+                          {"Juan"    si 1
+                          {... 
+                          {"No Definido"  e.o.c */
+string NombreVendedor(const int);
+
+
+string NombreMes(const int);
+
+
+string NombreMesAbrev(const int);
 
 
 /*Credito Extra:Presentar las tablas lo más claro posible con formato, alineación numérica y con títulos.*/
@@ -262,16 +260,16 @@ LeerCuboBin(IMVRbin);
 MostrarTotalesConFormato(IMVRbin);
 GuardarCuvoBin(VentasDelCapo);
 LeerCuvoBIN(VCbin);
+
+MostrarVentasCapo(VentasDelCapo);
 MostrarVentasCapo(VCbin);
 
 assert(sizeof ImporteMesVendedorRegion == sizeof TrxMesVendedorRegion);
 
 cout << "Totales:\n";
 MostrarTotalesCubo(CalcularTotales(ImporteMesVendedorRegion));
-
 cout << "Mejores:\n";
 MostrarV3(BuscarCoincidencia(ObtenerMejores(CalcularTotales(IMVRbin)),(CalcularTotales(IMVRbin))));
-
 cout << "Peores:\n";
 MostrarV3(BuscarCoincidencia(ObtenerPeores(CalcularTotales(IMVRbin)),(CalcularTotales(IMVRbin))));
 
@@ -358,20 +356,24 @@ void LeerCuboBin(CUBO &array){
 void GuardarCuvoBin(const CUVO &cuvo){
     static ofstream ofcuvobin{CapoBIN, std::ios::binary};
 
-    for(auto a : cuvo){  //itero x regiones capos, ya predefinido en #define
+    for(auto r : cuvo){  //itero x regiones capos, ya predefinido en #define
         int ir{};
-        for(auto b : a){  //itero x cada capo, ya predefinido en #define
+        for(auto c : r){  //itero x cada capo, ya predefinido en #define
             int ic{};
-            for(auto c : b){ //itero x cada mes, ya predefinido en #define, pero necesito marcar cuantas ventas tiene cada vector
-                int im{};
-                int cantidad{};
-                cantidad = c.size();
-                int venta{};
+            for(auto m : c){ //itero x cada mes, ya predefinido en #define, pero necesito marcar cuantas ventas tiene cada vector
+                int im{},
+                    venta{},
+                    cantidad{};
+                cantidad = m.size();
                 WriteBlock(ofcuvobin, cantidad);
+                /*
                 for(int i{}; i < cantidad; ++i){ //itero x cada venta del mes
-                    venta = cuvo[ir][ic][im][i];
+                    venta = cuvo.at(ir).at(ic).at(im).at(i);
                     WriteBlock(ofcuvobin, venta);
-                }
+                */
+                for (auto v : m){
+                    WriteBlock(ofcuvobin, v);
+                }            
                 ++im;
             }
             ++ic;
@@ -545,7 +547,6 @@ V3 BuscarCoincidencia(const array<int,3> &array, const TotalesCubo &tcubo){
 }
 
 void MostrarV3(const V3 &vector){
-
     for (auto v : vector){
         for (auto i : v){
             cout << i << " ";
@@ -555,19 +556,15 @@ void MostrarV3(const V3 &vector){
 }
 
 void MostrarTotalesCubo(const TotalesCubo &tcubo){
-
-    for (size_t i = 0; i < CantidadMeses; ++i)
-    {
+    for (size_t i = 0; i < CantidadMeses; ++i){
         cout << tcubo.Meses.at(i) << ' ';
     }
     cout << '\n';
-    for (size_t i = 0; i < CantidadVendedores; ++i)
-    {
+    for (size_t i = 0; i < CantidadVendedores; ++i){
         cout << tcubo.Vendedores.at(i) << ' ';
     }    
     cout << '\n';
-    for (size_t i = 0; i < CantidadRegiones; ++i)
-    {
+    for (size_t i = 0; i < CantidadRegiones; ++i){
         cout << tcubo.Regiones.at(i) << ' ';
     }
     cout << '\n';
@@ -667,8 +664,7 @@ for( auto r : cubo) {
 }
 }
 
-// cambiar int r x enum Regiones::Norte, etc
-string NombreRegion(int numr){
+string NombreRegion(const int numr){
    return numr == Regiones::Norte? "Norte":
           numr == Regiones::Sur?   "Sur":
           numr == Regiones::Este?  "Este": 
@@ -676,10 +672,25 @@ string NombreRegion(int numr){
                                    "No Definida";
 }
 
-
-
-string NombreVendedor(int numv){
+string NombreVendedor(const int numv){
+    if(numv+1 > CantidadVendedores || numv < 0)
+        return "No Definido";
+    else
     return ListaVendedores.at(numv);
+}
+
+string NombreMes(const int numm){
+    if (numm+1 > CantidadMeses || numm < 0)
+        return "No Definido";
+    else
+    return ListaMeses.at(numm);
+}
+
+string NombreMesAbrev(const int numm){
+    if (numm+1 > CantidadMeses || numm < 0)
+        return "No Def";
+    else
+    return ListaMesesAbrev.at(numm);
 }
 
 
