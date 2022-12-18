@@ -223,7 +223,7 @@ string NombreMesAbrev(const int);
 void MostrarTotalesConFormato(const CUBO &);
 
 
-
+void MostrarVentasCapoFormato(const CUVO &);
 
 
 
@@ -356,21 +356,18 @@ void LeerCuboBin(CUBO &array){
 void GuardarCuvoBin(const CUVO &cuvo){
     static ofstream ofcuvobin{CapoBIN, std::ios::binary};
 
+    int ir{};
     for(auto r : cuvo){  //itero x regiones capos, ya predefinido en #define
-        int ir{};
+        WriteBlock (ofcuvobin, ir);
+        int ic{};
         for(auto c : r){  //itero x cada capo, ya predefinido en #define
-            int ic{};
+            WriteBlock(ofcuvobin, ic);
+            int im{};
             for(auto m : c){ //itero x cada mes, ya predefinido en #define, pero necesito marcar cuantas ventas tiene cada vector
-                int im{},
-                    venta{},
-                    cantidad{};
+                WriteBlock(ofcuvobin, im);
+                int cantidad{};
                 cantidad = m.size();
                 WriteBlock(ofcuvobin, cantidad);
-                /*
-                for(int i{}; i < cantidad; ++i){ //itero x cada venta del mes
-                    venta = cuvo.at(ir).at(ic).at(im).at(i);
-                    WriteBlock(ofcuvobin, venta);
-                */
                 for (auto v : m){
                     WriteBlock(ofcuvobin, v);
                 }            
@@ -382,17 +379,51 @@ void GuardarCuvoBin(const CUVO &cuvo){
     }
     ofcuvobin.close();
 }
+/*
+void GuardarCuvoBin(const CUVO &cuvo){
+    static ofstream ofcuvobin{CapoBIN, std::ios::binary};
+
+    for(auto r : cuvo){  //itero x regiones capos, ya predefinido en #define
+        int ir{};
+        for(auto c : r){  //itero x cada capo, ya predefinido en #define
+            int ic{};
+            for(auto m : c){ //itero x cada mes, ya predefinido en #define, pero necesito marcar cuantas ventas tiene cada vector
+                int im{},
+                    venta{},
+                    cantidad{};
+                cantidad = m.size();
+                WriteBlock(ofcuvobin, cantidad);
+                
+                //for(int i{}; i < cantidad; ++i){ //itero x cada venta del mes
+                //    venta = cuvo.at(ir).at(ic).at(im).at(i);
+                //    WriteBlock(ofcuvobin, venta);
+                
+                for (auto v : m){
+                    WriteBlock(ofcuvobin, v);
+                }            
+                ++im;
+            }
+            ++ic;
+        }
+        ++ir;
+    }
+    ofcuvobin.close();
+}
+*/
 
 void LeerCuvoBIN(CUVO &cuvo){
     static ifstream ifcuvobin{CapoBIN, std::ios::binary};
     int ir{};
     for(auto r : cuvo){ //itero x regiones capos, ya predefinido en #define
+        ReadBlock(ifcuvobin, ir);
         int ic{};
         for(auto c : r){    //itero x cada capo, ya predefinido en #define
+            ReadBlock(ifcuvobin, ic);
             int im{};
             for(auto m : c){    //itero x cada mes, ya predefinido en #define, pero necesito marcar cuantas ventas tiene cada vector
+                ReadBlock(ifcuvobin,im);
                 int cantidad{};
-                ReadBlock(ifcuvobin, cantidad); //leo primer int indicando cantidad ventas del mes
+                ReadBlock(ifcuvobin, cantidad);  //leo primer int indicando cantidad ventas del mes
                 cuvo.at(ir).at(ic).at(im).resize(cantidad); //acomodo capacidad del vector mes a esa cantidad
                 cuvo.at(ir).at(ic).at(im).clear();  //limpio vector destino en caso que hubiese sido utilizado previamente
                 int venta{};
@@ -641,28 +672,6 @@ return 0;
 
 
 //::Presentación de Datos::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-void MostrarTotalesConFormato(const CUBO &cubo){
-int ir{0};
-cout << "Las ventas totales por Region, Vendedor y Meses son:\n";
-for( auto r : cubo) {
-    int iv{0};
-
-    cout << '\t' << "Region: " << NombreRegion(ir) << '\n' 
-         << "\tEne\tFeb\tMar\tAbr\tMay\tJun\tJul\tAgo\tSep\tOct\tNov\tDic\n";
-    for (auto v : r){
-        
-        cout << NombreVendedor(iv) <<'\t';
-
-        for (auto t : v){
-            cout << t << "\t";
-        }
-        ++iv;
-        cout << "\n";
-    }
-    ++ir;
-    cout << "\n";
-}
-}
 
 string NombreRegion(const int numr){
    return numr == Regiones::Norte? "Norte":
@@ -694,3 +703,39 @@ string NombreMesAbrev(const int numm){
 }
 
 
+void MostrarTotalesConFormato(const CUBO &cubo){
+int ir{0};
+cout << "Las ventas totales por Region, Vendedor y Meses son:\n";
+for( auto r : cubo) {
+    int iv{0};
+
+    cout << '\t' << "Region: " << NombreRegion(ir) << '\n' 
+         << "\tEne\tFeb\tMar\tAbr\tMay\tJun\tJul\tAgo\tSep\tOct\tNov\tDic\n";
+    for (auto v : r){
+        
+        cout << NombreVendedor(iv) <<'\t';
+
+        for (auto t : v){
+            cout << t << "\t";
+        }
+        ++iv;
+        cout << "\n";
+    }
+    ++ir;
+    cout << "\n";
+}
+}
+
+void MostrarVentasCapoFormato(const CUVO &vector){
+for( auto r : vector) { 
+    for (auto c : r){
+        for (auto m : c){
+            for(auto v :m)
+              cout << v << ' ';
+         cout << '\n';     
+        }
+        cout << '\n';
+    }
+    cout << '\n';
+}
+}
