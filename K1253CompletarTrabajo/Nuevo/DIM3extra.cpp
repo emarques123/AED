@@ -8,15 +8,15 @@
 
 #define CantidadRegiones 4      //
 #define CantidadVendedores 3    //para definir tamaño del "CUBO"
-#define CantidadMeses 12        //     
+#define CantidadMeses 12        //si se pone mas de 12 modificar "ListaMesesAbrev", si se pone menos de 12, definir cuales en "ListaMesesAbrev"    
 #define CantidadCapos 1         //para definir tamaño array vendedores en "ventas del capo"
 #define RegionesCapos 1         //para definir tamaño array regiones en "ventas del capo"
 #define ElCapo 0                //para definir que vendedor es el capo
 #define RegionDelCapo 0         //para definir cual es la region del capo
 #define InicioVector 16         //para setear un tamaño inicial a cada mes-vector del capo           *revisar
-#define ArchivoDeTexto "data.txt"
+#define ArchivoDeTexto "data.txt"   //para definir nombre de archivo
 #define DataFileBIN "data.bin"  //aca deberia haber otro para la cantidad de ventas             *revisar
-#define CapoBIN "capo.bin"
+#define CapoBIN "capo.bin"      //para definir el nombre de archivo
 
 using std::array;
 using std::vector;
@@ -28,9 +28,9 @@ using std::ofstream;
 
 using CUBO = array<array<array<int,CantidadMeses>,CantidadVendedores>,CantidadRegiones>;
 using CUVO = array<array<array<vector<int>,CantidadMeses>,CantidadCapos>,RegionesCapos>;
-using V3 = array<vector<int>,3>; //para mostrar stats. Dimensiones x Vector{ValorDeReferencia, coincidencia, ..., coincidencia}
+using V3 = array<vector<int>,3>;    //para mostrar stats. Dimensiones x Vector{ValorDeReferencia, coincidencia, ..., coincidencia}
 
-struct TotalesCubo{
+struct TotalesCubo{                 //para uso estadisticas CUBO
 array<int,CantidadMeses> Meses;
 array<int,CantidadVendedores> Vendedores;
 array<int,CantidadRegiones> Regiones;
@@ -45,41 +45,6 @@ array<string,CantidadVendedores> ListaVendedores{
     "Juan",         //1
     "Juana",        //2
 };
-
-//Listado Meses, revisar si la utiliza mas de una funcion? sino pasar a static dentro de funcion
-array<string,CantidadMeses> ListaMeses{
-    "Enero",        //0
-    "Febrero",      //1
-    "Marzo",        //2
-    "Abril",        //3
-    "Mayo",         //4
-    "Junio",        //5
-    "Julio",        //6
-    "Agosto",       //7
-    "Septiembre",   //8
-    "Octubre",      //9
-    "Noviembre",    //10
-    "Diciembre",    //11
-};
-
-//Listado Meses, revisar si la utiliza mas de una funcion? sino pasar a static dentro de funcion
-array<string,CantidadMeses> ListaMesesAbrev{
-    "Ene",      //0
-    "Feb",      //1
-    "Mar",      //2
-    "Abr",      //3
-    "May",      //4
-    "Jun",      //5
-    "Jul",      //6
-    "Ago",      //7
-    "Sep",      //8
-    "Oct",      //9
-    "Nov",      //10
-    "Dic",      //11
-};
-
-
-
 
 
 //:::::::::::::::::::::::::::Prototipos::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -689,6 +654,20 @@ string NombreVendedor(const int numv){
 }
 
 string NombreMes(const int numm){
+static array<string,CantidadMeses> ListaMeses{
+    "Enero",        //0
+    "Febrero",      //1
+    "Marzo",        //2
+    "Abril",        //3
+    "Mayo",         //4
+    "Junio",        //5
+    "Julio",        //6
+    "Agosto",       //7
+    "Septiembre",   //8
+    "Octubre",      //9
+    "Noviembre",    //10
+    "Diciembre",    //11
+};
     if (numm+1 > CantidadMeses || numm < 0)
         return "No Definido";
     else
@@ -696,6 +675,21 @@ string NombreMes(const int numm){
 }
 
 string NombreMesAbrev(const int numm){
+static array<string,CantidadMeses> ListaMesesAbrev{
+    "Ene",      //0
+    "Feb",      //1
+    "Mar",      //2
+    "Abr",      //3
+    "May",      //4
+    "Jun",      //5
+    "Jul",      //6
+    "Ago",      //7
+    "Sep",      //8
+    "Oct",      //9
+    "Nov",      //10
+    "Dic",      //11
+};
+
     if (numm+1 > CantidadMeses || numm < 0)
         return "No Def";
     else
