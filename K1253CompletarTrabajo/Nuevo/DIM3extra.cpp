@@ -54,6 +54,12 @@ array<string,CantidadVendedores> ListaVendedores{
     "Juana",        //2
 };
 
+struct arraydin {
+    array<int,12> valores;
+    unsigned n{};
+};
+
+void Agregar(arraydin, int); // cambiar V3 por arraydin, sumar funcion agregar e imprimir, quitar(no necesaria)
 
 //:::::::::::::::::::::::::::Prototipos::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -94,7 +100,7 @@ void MostrarV3(const V3 &);
 // MostrarTotalesCubo: (Z^12,Z^3,Z^4)-->ε/ EDL cout<<Totales Cubo
 void MostrarTotalesCubo(const TotalesCubo &);
 
-//
+// MostrarTotalesCubo: (Z^12,Z^3,Z^4)-->ε/ EDL cout<<Totales Cubo
 void MostrarPromediosCubo(const PromediosCubo &);
 
 
@@ -500,7 +506,7 @@ V3 BuscarCoincidencia(const array<int,3> &array, const TotalesCubo &tcubo){
             vector[2].push_back(ir);        
         }
     }
-    return vector;
+    return vector; //mes $500 {500, {0}} //ideal diferente tipo de dato para monto/coincidencia
 }
 
 void MostrarMejoresCubo(const CUBO &cubo){
