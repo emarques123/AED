@@ -6,17 +6,19 @@
 #include <cassert>
 #include "Blockstream.h"
 
-#define CantidadRegiones 4      //
-#define CantidadVendedores 3    //para definir tamaño del "CUBO"
-#define CantidadMeses 12        //si se pone mas de 12 modificar "ListaMesesAbrev", si se pone menos de 12, definir cuales en "ListaMesesAbrev"    
+//para definir tamaño del "CUBO"
+#define CantidadRegiones 4      //si mas de 4 agregar a enum regiones, si menos definir en enum cuales
+#define CantidadVendedores 3    //si mas de 3 modificar "ListaVendedores" si menos, definir cuales quedan
+#define CantidadMeses 12        //si se pone mas de 12 modificar "ListaMeses", si se pone menos de 12, definir cuales en "ListaMeses"    
+//para definir tamaño del "CUVO"
 #define CantidadCapos 1         //para definir tamaño array vendedores en "ventas del capo"
 #define RegionesCapos 1         //para definir tamaño array regiones en "ventas del capo"
 #define ElCapo 0                //para definir que vendedor es el capo
 #define RegionDelCapo 0         //para definir cual es la region del capo
-#define InicioVector 16         //para setear un tamaño inicial a cada mes-vector del capo           *revisar
+// #define InicioVector 16          //para posible seteo de tamaño inicial para cada mes-vector del capo (hacer funcion?) *desestimado atm
 #define ArchivoDeTexto "data.txt"   //para definir nombre de archivo
-#define DataFileBIN "data.bin"  //aca deberia haber otro para la cantidad de ventas             *revisar
-#define CapoBIN "capo.bin"      //para definir el nombre de archivo
+#define ArchivoBinario "data.bin"   //aca podria tenerotro para la cantidad de ventas             *revisar
+#define CapoBIN "capo.bin"          //para definir el nombre de archivo
 
 using std::array;
 using std::vector;
@@ -80,6 +82,11 @@ void MostrarTotales(const CUBO &);
 // MostrarVentasCapo: Z^N^12^1^4-->ε/ EDL cout<-vector
 void MostrarVentasCapo(const CUVO &);
 
+// MostrarV3: Z^N^3 -->ε/ EDL cout<<V3
+void MostrarV3(const V3 &);
+
+// MostrarTotalesCubo: (Z^12,Z^3,Z^4)-->ε/ EDL cout<<Totales Cubo
+void MostrarTotalesCubo(const TotalesCubo &);
 
 
 
@@ -104,19 +111,11 @@ V3 BuscarCoincidencia(const array<int,3> &, const TotalesCubo &);
 
 
 
-// MostrarV3: Z^N^3 -->ε/ EDL cout<<V3
-void MostrarV3(const V3 &);
-
-// MostrarTotalesCubo: (Z^12,Z^3,Z^4)-->ε/ EDL cout<<Totales Cubo
-void MostrarTotalesCubo(const TotalesCubo &);
-
-
+// para agrupar funciones modulares y no tener que anidar llamados en main
+void MostrarMejoresCubo(const CUBO &);
 
 // para agrupar funciones modulares y no tener que anidar llamados en main
-void MostrarMejores(const CUBO &);
-
-
-
+void MostrarPeoresCubo(const CUBO &);
 
 
 
@@ -187,12 +186,20 @@ string NombreMesAbrev(const int);
 // MostrarTotalesConFormato:Z^12^3^4-->ε/ EDL cout<<CUBO
 void MostrarTotalesConFormato(const CUBO &);
 
-
+//MostrarVentasCapoFormato: CUVO --> void/ EDL cout << CUVO
 void MostrarVentasCapoFormato(const CUVO &);
 
+//MostrarTotalesCuboFormato: Struct TotalesCubo--> void/ EDL cout << TotalesCubo
+void MostrarTotalesCuboFormato(const TotalesCubo &);
 
+//
+void MostrarV3Formato(const V3 &);
 
+//
+void MostrarMejoresCuboFormato(const CUBO &);
 
+//
+void MostrarPeoresCuboFormato(const CUBO &);
 
 
 
@@ -208,7 +215,7 @@ CUBO ImporteMesVendedorRegion{};
 CUBO TrxMesVendedorRegion{};
 CUVO VentasDelCapo{};
 
-//se alimentan desde archivos binarios, los diferencio para verificar facilmente si recuperan info ok dsd bin
+//se alimentan desde archivos binarios, los diferencie para facilitarme verificacion si flujo a .bin ok 
 CUBO IMVRbin{};
 CUBO TMVRbin{};
 CUVO VCbin{};
@@ -217,30 +224,22 @@ CUVO VCbin{};
 int main(){
 
 assert(1 == Regiones::Sur);
-//VentasDelCapo reservar vector***** hacer funcion?
 
 LeerDatosTxt();
 GuardarCuboBin(ImporteMesVendedorRegion);
 LeerCuboBin(IMVRbin);
-MostrarTotalesConFormato(IMVRbin);
 GuardarCuvoBin(VentasDelCapo);
+MostrarTotalesConFormato(IMVRbin);
 LeerCuvoBIN(VCbin);
-
-MostrarVentasCapo(VentasDelCapo);
-MostrarVentasCapo(VCbin);
+MostrarVentasCapoFormato(VCbin);
 
 assert(sizeof ImporteMesVendedorRegion == sizeof TrxMesVendedorRegion);
+assert(sizeof VentasDelCapo == sizeof VCbin);
 
-cout << "Totales:\n";
-MostrarTotalesCubo(CalcularTotales(ImporteMesVendedorRegion));
-cout << "Mejores:\n";
-MostrarV3(BuscarCoincidencia(ObtenerMejores(CalcularTotales(IMVRbin)),(CalcularTotales(IMVRbin))));
-cout << "Peores:\n";
-MostrarV3(BuscarCoincidencia(ObtenerPeores(CalcularTotales(IMVRbin)),(CalcularTotales(IMVRbin))));
-
-
+MostrarTotalesCuboFormato(CalcularTotales(ImporteMesVendedorRegion));
+MostrarMejoresCuboFormato(ImporteMesVendedorRegion);
+MostrarPeoresCuboFormato(IMVRbin);
 //cout << GetPromedioVentas(0,1);
-//MostrarTotalesConFormato(TrxMesVendedorRegion);
 
 }
 
@@ -269,7 +268,7 @@ void LeerDatosCIN(){
     ImporteMesVendedorRegion.at(Region).at(Vendedor).at(Mes) += Importe;
     ++TrxMesVendedorRegion.at(Region).at(Vendedor).at(Mes);
 
-    if (Vendedor == ElCapo && Region == RegionDelCapo) // si hubiera mas de un capo >> llamar funcion "SosUnCapo?"
+    if (Vendedor == ElCapo && Region == RegionDelCapo) // si hubiera mas de un capo >> llamar funcion "SosUnCapo?" (x ahora fuera del scope tp)
     {
         GuardarVentaDelCapo(Region, Vendedor, Mes, Importe);
     }
@@ -278,42 +277,34 @@ void LeerDatosCIN(){
 }
 
 void LeerDatosTxt(){
-
-static ifstream ifdatatxt;
-
-ifdatatxt.open(ArchivoDeTexto);
+    static ifstream ifdatatxt;
+    ifdatatxt.open(ArchivoDeTexto);
 
     for (int Importe{}, Mes{}, Vendedor{}, Region{};ifdatatxt >> Importe >> Mes >> Vendedor >> Region;){
-
     ImporteMesVendedorRegion.at(Region).at(Vendedor).at(Mes) += Importe;
     ++TrxMesVendedorRegion.at(Region).at(Vendedor).at(Mes);
 
-    if (Vendedor == ElCapo && Region == RegionDelCapo) // si hubiera mas de un capo >> llamar funcion "SosUnCapo?"
-    {
+    if (Vendedor == ElCapo && Region == RegionDelCapo){ // si hubiera mas de un capo >> llamar funcion "SosUnCapo?" *pendiente se va de scope tp?
         GuardarVentaDelCapo(Region, Vendedor, Mes, Importe);
+        }
     }
-    }
-    
-ifdatatxt.close();
+    ifdatatxt.close();
 }
 
 void GuardarVentaDelCapo(const int r,const int c,const int m,const int v){
-
     VentasDelCapo.at(r).at(c).at(m).push_back(v);
 }
 
 
 void GuardarCuboBin(const CUBO &array){
-
-    //constexpr auto filename{DataFileBIN}; << investigar
-    static ofstream ofcubobin{DataFileBIN, std::ios::binary};
+    //constexpr auto filename{DataFileBIN}; ??? << investigar
+    static ofstream ofcubobin{ArchivoBinario, std::ios::binary};
 	WriteBlock(ofcubobin, array);
-	ofcubobin.close();    
-
+	ofcubobin.close();
 }
 
 void LeerCuboBin(CUBO &array){   
-    static ifstream ifcubobin{DataFileBIN, std::ios::binary};
+    static ifstream ifcubobin{ArchivoBinario, std::ios::binary};
     ReadBlock(ifcubobin, array);
     ifcubobin.close();
 }
@@ -322,19 +313,19 @@ void GuardarCuvoBin(const CUVO &cuvo){
     static ofstream ofcuvobin{CapoBIN, std::ios::binary};
 
     int ir{};
-    for(auto r : cuvo){  //itero x regiones capos, ya predefinido en #define
+    for(auto r : cuvo){  //itero x regiones capos, ya predefinido en #define, marco nro region
         WriteBlock (ofcuvobin, ir);
         int ic{};
-        for(auto c : r){  //itero x cada capo, ya predefinido en #define
+        for(auto c : r){  //itero x cada capo, ya predefinido en #define,  marco nro capo
             WriteBlock(ofcuvobin, ic);
             int im{};
-            for(auto m : c){ //itero x cada mes, ya predefinido en #define, pero necesito marcar cuantas ventas tiene cada vector
+            for(auto m : c){ //itero x cada mes, marco mes
                 WriteBlock(ofcuvobin, im);
                 int cantidad{};
                 cantidad = m.size();
-                WriteBlock(ofcuvobin, cantidad);
+                WriteBlock(ofcuvobin, cantidad); //marco cuantas ventas tiene el mes
                 for (auto v : m){
-                    WriteBlock(ofcuvobin, v);
+                    WriteBlock(ofcuvobin, v); //escribo ventas
                 }            
                 ++im;
             }
@@ -344,53 +335,22 @@ void GuardarCuvoBin(const CUVO &cuvo){
     }
     ofcuvobin.close();
 }
-/*
-void GuardarCuvoBin(const CUVO &cuvo){
-    static ofstream ofcuvobin{CapoBIN, std::ios::binary};
-
-    for(auto r : cuvo){  //itero x regiones capos, ya predefinido en #define
-        int ir{};
-        for(auto c : r){  //itero x cada capo, ya predefinido en #define
-            int ic{};
-            for(auto m : c){ //itero x cada mes, ya predefinido en #define, pero necesito marcar cuantas ventas tiene cada vector
-                int im{},
-                    venta{},
-                    cantidad{};
-                cantidad = m.size();
-                WriteBlock(ofcuvobin, cantidad);
-                
-                //for(int i{}; i < cantidad; ++i){ //itero x cada venta del mes
-                //    venta = cuvo.at(ir).at(ic).at(im).at(i);
-                //    WriteBlock(ofcuvobin, venta);
-                
-                for (auto v : m){
-                    WriteBlock(ofcuvobin, v);
-                }            
-                ++im;
-            }
-            ++ic;
-        }
-        ++ir;
-    }
-    ofcuvobin.close();
-}
-*/
 
 void LeerCuvoBIN(CUVO &cuvo){
     static ifstream ifcuvobin{CapoBIN, std::ios::binary};
     int ir{};
     for(auto r : cuvo){ //itero x regiones capos, ya predefinido en #define
-        ReadBlock(ifcuvobin, ir);
+        ReadBlock(ifcuvobin, ir); //leo que region es
         int ic{};
         for(auto c : r){    //itero x cada capo, ya predefinido en #define
-            ReadBlock(ifcuvobin, ic);
+            ReadBlock(ifcuvobin, ic); //leo cual capo es
             int im{};
-            for(auto m : c){    //itero x cada mes, ya predefinido en #define, pero necesito marcar cuantas ventas tiene cada vector
-                ReadBlock(ifcuvobin,im);
+            for(auto m : c){    //itero x cada mes,
+                ReadBlock(ifcuvobin,im); //leo que mes es
                 int cantidad{};
-                ReadBlock(ifcuvobin, cantidad);  //leo primer int indicando cantidad ventas del mes
+                ReadBlock(ifcuvobin, cantidad);  //leo cantidad ventas del mes
                 cuvo.at(ir).at(ic).at(im).resize(cantidad); //acomodo capacidad del vector mes a esa cantidad
-                cuvo.at(ir).at(ic).at(im).clear();  //limpio vector destino en caso que hubiese sido utilizado previamente
+                cuvo.at(ir).at(ic).at(im).clear();  //limpio vector destino en caso que hubiese algun dato residual, quizas redundante
                 int venta{};
                     for(int i{}; i < cantidad; ++i){    //itero x la cantidad de ventas indicadas para ese mes
                     ReadBlock(ifcuvobin, venta);    //leo siguientes bytes que contienen venta
@@ -403,41 +363,64 @@ void LeerCuvoBIN(CUVO &cuvo){
         ++ir;    
     }
     ifcuvobin.close();
-
-
 }
 
-
 void MostrarTotales(const CUBO &Array){
-for( auto r : Array) { 
+for( auto r : Array){ 
     for (auto v : r){
         for (auto t : v){
             cout << t << '\t';
-        }
+            }
         cout << '\n';
-    }
+        }
     cout << '\n';
-}
+    }
 }
 
 void MostrarVentasCapo(const CUVO &vector){
-for( auto r : vector) { 
-    for (auto c : r){
-        for (auto m : c){
-            for(auto v :m)
-              cout << v << ' ';
-         cout << '\n';     
-        }
+    for( auto r : vector){ 
+        for (auto c : r){
+            for (auto m : c){
+                for(auto v :m){
+                cout << v << ' ';              
+                }
+            cout << '\n';
+            }
         cout << '\n';
+        }
+    cout << '\n';    
+    }
+}
+
+void MostrarV3(const V3 &vector){
+    for (auto v : vector){
+        for (auto i : v){
+            cout << i << " ";
+        }
+        cout << '\n';    
+    }
+}
+
+void MostrarTotalesCubo(const TotalesCubo &tcubo){
+    for (size_t i = 0; i < CantidadMeses; ++i){
+        cout << tcubo.Meses.at(i) << ' ';
+    }
+    cout << '\n';
+    for (size_t i = 0; i < CantidadVendedores; ++i){
+        cout << tcubo.Vendedores.at(i) << ' ';
+    }    
+    cout << '\n';
+    for (size_t i = 0; i < CantidadRegiones; ++i){
+        cout << tcubo.Regiones.at(i) << ' ';
     }
     cout << '\n';
 }
-}
+
 
 //::Cálculo de Estadísticas::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 //::Stats Simples::::::::: (mejor/peor Región, Vendedor, Mes) 
-//Plan A: stats en 2 pasos: iterar buscando mayor/menor venta, luego iterar 
+//Plan A: stats en 2 pasos: iterar buscando mayor/menor venta, luego iterar buscando coincidencia > guardarla > mostrarla
 
 
 MayorMenorIgual CompararValores(const int &a,const int &b){
@@ -542,34 +525,19 @@ V3 BuscarCoincidencia(const array<int,3> &array, const TotalesCubo &tcubo){
     return vector;
 }
 
-void MostrarV3(const V3 &vector){
-    for (auto v : vector){
-        for (auto i : v){
-            cout << i << " ";
-        }
-        cout << '\n';    
-    }
-}
 
-void MostrarTotalesCubo(const TotalesCubo &tcubo){
-    for (size_t i = 0; i < CantidadMeses; ++i){
-        cout << tcubo.Meses.at(i) << ' ';
-    }
-    cout << '\n';
-    for (size_t i = 0; i < CantidadVendedores; ++i){
-        cout << tcubo.Vendedores.at(i) << ' ';
-    }    
-    cout << '\n';
-    for (size_t i = 0; i < CantidadRegiones; ++i){
-        cout << tcubo.Regiones.at(i) << ' ';
-    }
-    cout << '\n';
-}
     
-void MostrarMejores(const CUBO &){
-
+void MostrarMejoresCubo(const CUBO &cubo){
+    TotalesCubo tc{};
+    tc = CalcularTotales(cubo);
+    MostrarV3(BuscarCoincidencia(ObtenerMejores(tc),tc));
 }
 
+void MostrarPeoresCubo(const CUBO &cubo){
+    TotalesCubo tc{};
+    tc = CalcularTotales(cubo);
+    MostrarV3(BuscarCoincidencia(ObtenerPeores(tc),tc));
+}
 
 
 
@@ -618,7 +586,7 @@ return 0;
 
 
 
-
+//::Stats con Parametros Variables:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 
 
@@ -720,16 +688,83 @@ for( auto r : cubo) {
 }
 }
 
-void MostrarVentasCapoFormato(const CUVO &vector){
-for( auto r : vector) { 
+void MostrarVentasCapoFormato(const CUVO &cuvo){
+cout << "Las ventas del Capo:";
+int ir{};    
+for( auto r : cuvo){
+    int ic{};
+    cout << "(Region:" << NombreRegion(ir) <<" "; 
     for (auto c : r){
+        int im{};
+        cout << "Vendedor:" << NombreVendedor(ic) << ")\n"; 
         for (auto m : c){
+            cout << NombreMesAbrev(im) <<"\t";
             for(auto v :m)
-              cout << v << ' ';
-         cout << '\n';     
-        }
+            cout << "$"<< v << ' ';
+            ++im;
+            cout << '\n';     
+            }
         cout << '\n';
+        ++ic;
+        }
+    cout << '\n';
+    ++ir;
+    }
+}
+
+void MostrarTotalesCuboFormato(const TotalesCubo &tcubo){
+    cout << "La venta total fue:$" << tcubo.Vendedores.at(0)+ tcubo.Vendedores.at(1)+ tcubo.Vendedores.at(2); // *a mejorar con loop
+
+    cout << "\n\nTotales agrupados por Mes, Vendedor y Region:\n";
+    for (size_t i = 0; i < CantidadMeses; ++i){
+        cout << NombreMesAbrev(i) << ":$" << tcubo.Meses.at(i) << "  ";
     }
     cout << '\n';
+    for (size_t i = 0; i < CantidadVendedores; ++i){
+        cout << NombreVendedor(i) << ":$"<< tcubo.Vendedores.at(i) << "   ";
+    }    
+    cout << '\n';
+    for (size_t i = 0; i < CantidadRegiones; ++i){
+        cout << NombreRegion(i) << ":$" << tcubo.Regiones.at(i) << "   ";
+    }
+    cout << "\n\n";
 }
+
+void MostrarV3Formato(const V3 &v3){
+    cout << "Por Mes:$" << v3.at(0).at(0) << " en ";
+    for (unsigned im{1}; im < v3.at(0).size(); ++im){
+       cout << NombreMes(v3.at(0).at(im)) << ' ';
+    }
+
+    cout << '\n';
+    cout << "Por Vendedor:$"<< v3.at(1).at(0) << " de ";
+    for (unsigned iv{1}; iv < v3.at(1).size(); ++iv){
+       cout << NombreVendedor(v3.at(1).at(iv)) << ' ';
+    }    
+
+    cout << '\n';
+    cout << "Por Region:$"<< v3.at(2).at(0) << " en el ";
+    for (unsigned ir{1}; ir < v3.at(2).size(); ++ir){
+       cout << NombreRegion(v3.at(2).at(ir)) << ' ';
+    }
+    cout << "\n\n";
+}
+
+void MostrarMejoresCuboFormato(const CUBO &cubo){
+    cout << "Las mejores ventas fueron:\n";
+
+    TotalesCubo tc{};
+    tc = CalcularTotales(cubo);
+    MostrarV3Formato(BuscarCoincidencia(ObtenerMejores(tc),tc));
+
+}
+
+
+void MostrarPeoresCuboFormato(const CUBO &cubo){
+    cout << "Las peores ventas fueron:\n";
+
+    TotalesCubo tc{};
+    tc = CalcularTotales(cubo);
+    MostrarV3Formato(BuscarCoincidencia(ObtenerPeores(tc),tc));
+
 }
