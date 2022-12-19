@@ -129,11 +129,6 @@ PromediosCubo ObtenerPromedios(const TotalesCubo &, const TotalesCubo &);
 
 
 
-
-
-
-
-
 //Deprecado
 double GetPromedioVentas(int, int);
 
@@ -180,7 +175,7 @@ void MostrarMejoresCuboFormato(const CUBO &);
 void MostrarPeoresCuboFormato(const CUBO &);
 
 //
-void MostrarPromediosFormato(const PromediosCubo &);
+void MostrarPromediosFormato(const CUBO &);
 
 
 
@@ -218,18 +213,9 @@ assert(sizeof VentasDelCapo == sizeof VCbin);
 MostrarTotalesCuboFormato(CalcularTotales(ImporteMesVendedorRegion));
 MostrarMejoresCuboFormato(ImporteMesVendedorRegion);
 MostrarPeoresCuboFormato(IMVRbin);
-//cout << GetPromedioVentas(0,1);
-MostrarPromediosFormato(ObtenerPromedios(CalcularTotales(ImporteMesVendedorRegion),CalcularTotales(TrxMesVendedorRegion)));
+MostrarPromediosFormato(ImporteMesVendedorRegion);
 
 }
-
-
-
-
-
-
-
-
 
 
 
@@ -742,9 +728,10 @@ void MostrarPeoresCuboFormato(const CUBO &cubo){
 
 }
 
-void MostrarPromediosFormato(const PromediosCubo &pcubo){
-
-    cout << "La venta promedio fue:$" << (pcubo.Vendedores.at(0)+ pcubo.Vendedores.at(1)+ pcubo.Vendedores.at(2)/CantidadVendedores); // *a mejorar con loop
+//void MostrarPromediosFormato(const PromediosCubo &pcubo){
+void MostrarPromediosFormato(const CUBO &cubo){
+    PromediosCubo pcubo{};
+    pcubo = ObtenerPromedios(CalcularTotales(cubo),CalcularTotales(TrxMesVendedorRegion));
 
     cout << "\n\nPromedios agrupados por Mes, Vendedor y Region:\n";
     for (size_t i = 0; i < CantidadMeses; ++i){
