@@ -38,6 +38,12 @@ array<int,CantidadVendedores> Vendedores;
 array<int,CantidadRegiones> Regiones;
 };
 
+struct PromediosCubo{                 //para uso estadisticas CUBO
+array<double,CantidadMeses> Meses;
+array<double,CantidadVendedores> Vendedores;
+array<double,CantidadRegiones> Regiones;
+};
+
 enum Regiones{Norte, Sur, Este, Oeste, NoDefinida};
 enum MayorMenorIgual{Menor = -1, Igual = 0, Mayor = 1};
 
@@ -88,6 +94,8 @@ void MostrarV3(const V3 &);
 // MostrarTotalesCubo: (Z^12,Z^3,Z^4)-->ε/ EDL cout<<Totales Cubo
 void MostrarTotalesCubo(const TotalesCubo &);
 
+//
+void MostrarPromediosCubo(const PromediosCubo &);
 
 
 
@@ -110,13 +118,14 @@ array<int,3> ObtenerPeores(const TotalesCubo &);
 V3 BuscarCoincidencia(const array<int,3> &, const TotalesCubo &);
 
 
-
 // para agrupar funciones modulares y no tener que anidar llamados en main
 void MostrarMejoresCubo(const CUBO &);
 
 // para agrupar funciones modulares y no tener que anidar llamados en main
 void MostrarPeoresCubo(const CUBO &);
 
+// calcula promedios mes/vendedor/region
+PromediosCubo ObtenerPromedios(const TotalesCubo &, const TotalesCubo &);
 
 
 
@@ -124,43 +133,12 @@ void MostrarPeoresCubo(const CUBO &);
 
 
 
-/*
-Deprecado?
-*/
-//GetVendedorConMasVentas:(MESxRegion)--->Σ*/ 
-string GetVendedorConMasVentas(int, Regiones);
 
-//GetVendedorConMenosVentas(mes, región)--->Σ*/
-string GetVendedorConMenosVentas(int, Regiones);
-
-//FALTA:
-//GetPromedioVentas(desde mes, hasta mes) #1
-//GetPromedioVentas(desde mes, hasta mes, Vendedor) #2
-//GetPromedioVentas(desde mes, hasta mes, Vendedor, Región) #3 
-
+//Deprecado
 double GetPromedioVentas(int, int);
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //::Presentación de Datos::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
 
 /* NombreRegion:Z-->Σ* /{Norte  si 0
                         {Sur    si 1
@@ -201,7 +179,8 @@ void MostrarMejoresCuboFormato(const CUBO &);
 //
 void MostrarPeoresCuboFormato(const CUBO &);
 
-
+//
+void MostrarPromediosFormato(const PromediosCubo &);
 
 
 
@@ -240,6 +219,7 @@ MostrarTotalesCuboFormato(CalcularTotales(ImporteMesVendedorRegion));
 MostrarMejoresCuboFormato(ImporteMesVendedorRegion);
 MostrarPeoresCuboFormato(IMVRbin);
 //cout << GetPromedioVentas(0,1);
+MostrarPromediosFormato(ObtenerPromedios(CalcularTotales(ImporteMesVendedorRegion),CalcularTotales(TrxMesVendedorRegion)));
 
 }
 
@@ -416,10 +396,24 @@ void MostrarTotalesCubo(const TotalesCubo &tcubo){
     cout << '\n';
 }
 
+void MostrarPromediosCubo(const PromediosCubo &pcubo){
+    for (size_t i = 0; i < CantidadMeses; ++i){
+        cout << pcubo.Meses.at(i) << ' ';
+    }
+    cout << '\n';
+    for (size_t i = 0; i < CantidadVendedores; ++i){
+        cout << pcubo.Vendedores.at(i) << ' ';
+    }    
+    cout << '\n';
+    for (size_t i = 0; i < CantidadRegiones; ++i){
+        cout << pcubo.Regiones.at(i) << ' ';
+    }
+    cout << '\n';
+}
 
 //::Cálculo de Estadísticas::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-//::Stats Simples::::::::: (mejor/peor Región, Vendedor, Mes) 
+//::Stats Simples::::::::: (mejor/peor/promedio Región, Vendedor, Mes) 
 //Plan A: stats en 2 pasos: iterar buscando mayor/menor venta, luego iterar buscando coincidencia > guardarla > mostrarla
 
 
@@ -428,7 +422,6 @@ MayorMenorIgual CompararValores(const int &a,const int &b){
     a > b?  MayorMenorIgual::Mayor:
     a == b? MayorMenorIgual::Igual:MayorMenorIgual::Menor;
 }
-
 
 TotalesCubo CalcularTotales(const CUBO &cubo){
     TotalesCubo totales{};
@@ -447,7 +440,6 @@ TotalesCubo CalcularTotales(const CUBO &cubo){
     }
     return totales;
 }
-
 
 array<int,3> ObtenerMejores(const TotalesCubo &tcubo){
     int mejormes{tcubo.Meses.at(0)},
@@ -525,8 +517,6 @@ V3 BuscarCoincidencia(const array<int,3> &array, const TotalesCubo &tcubo){
     return vector;
 }
 
-
-    
 void MostrarMejoresCubo(const CUBO &cubo){
     TotalesCubo tc{};
     tc = CalcularTotales(cubo);
@@ -540,19 +530,22 @@ void MostrarPeoresCubo(const CUBO &cubo){
 }
 
 
+PromediosCubo ObtenerPromedios(const TotalesCubo &total, const TotalesCubo &trx){
+    PromediosCubo promedios{};
 
+    for(int i{}; i < CantidadMeses; ++i){
+        promedios.Meses.at(i) += (total.Meses.at(i)*1.0) / trx.Meses.at(i);
+    }
 
+    for(int i{}; i < CantidadVendedores; ++i){
+        promedios.Vendedores.at(i) += (total.Vendedores.at(i)*1.0) / trx.Vendedores.at(i);
+    }
 
-
-
-
-
-
-
-
-
-
-
+    for(int i{}; i < CantidadRegiones; ++i){
+        promedios.Regiones.at(i) += (total.Regiones.at(i)*1.0) / trx.Regiones.at(i);
+    }
+    return promedios;
+}
 
 
 
@@ -581,26 +574,8 @@ cout << Contador << " "<< Sumatoria;
 return 0;
 }
 
-//::Stats Simples::::::::: Plan B (combinar pasos plan A y evitar segunda iteracion x TotalesCubo)
-
-
-
-
-//::Stats con Parametros Variables:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+//::Stats Simples:: Plan B (combinar pasos plan A y evitar segunda iteracion x TotalesCubo)
+//::Stats con Parametros Variables::
 
 
 
@@ -657,7 +632,6 @@ static array<string,CantidadMeses> ListaMesesAbrev{
     "Nov",      //10
     "Dic",      //11
 };
-
     if (numm+1 > CantidadMeses || numm < 0)
         return "No Def";
     else
@@ -666,26 +640,26 @@ static array<string,CantidadMeses> ListaMesesAbrev{
 
 
 void MostrarTotalesConFormato(const CUBO &cubo){
-int ir{0};
-cout << "Las ventas totales por Region, Vendedor y Meses son:\n";
-for( auto r : cubo) {
-    int iv{0};
+    int ir{0};
+    cout << "Las ventas totales por Region, Vendedor y Meses son:\n";
+    for( auto r : cubo) {
+        int iv{0};
 
-    cout << '\t' << "Region: " << NombreRegion(ir) << '\n' 
-         << "\tEne\tFeb\tMar\tAbr\tMay\tJun\tJul\tAgo\tSep\tOct\tNov\tDic\n";
-    for (auto v : r){
-        
-        cout << NombreVendedor(iv) <<'\t';
+        cout << '\t' << "Region: " << NombreRegion(ir) << '\n' 
+             << "\tEne\tFeb\tMar\tAbr\tMay\tJun\tJul\tAgo\tSep\tOct\tNov\tDic\n";
+        for (auto v : r){
 
-        for (auto t : v){
-            cout << t << "\t";
+            cout << NombreVendedor(iv) <<'\t';
+
+            for (auto t : v){
+                cout << t << "\t";
+            }
+            ++iv;
+            cout << "\n";
         }
-        ++iv;
+        ++ir;
         cout << "\n";
     }
-    ++ir;
-    cout << "\n";
-}
 }
 
 void MostrarVentasCapoFormato(const CUVO &cuvo){
@@ -759,7 +733,6 @@ void MostrarMejoresCuboFormato(const CUBO &cubo){
 
 }
 
-
 void MostrarPeoresCuboFormato(const CUBO &cubo){
     cout << "Las peores ventas fueron:\n";
 
@@ -767,4 +740,23 @@ void MostrarPeoresCuboFormato(const CUBO &cubo){
     tc = CalcularTotales(cubo);
     MostrarV3Formato(BuscarCoincidencia(ObtenerPeores(tc),tc));
 
+}
+
+void MostrarPromediosFormato(const PromediosCubo &pcubo){
+
+    cout << "La venta promedio fue:$" << (pcubo.Vendedores.at(0)+ pcubo.Vendedores.at(1)+ pcubo.Vendedores.at(2)/CantidadVendedores); // *a mejorar con loop
+
+    cout << "\n\nPromedios agrupados por Mes, Vendedor y Region:\n";
+    for (size_t i = 0; i < CantidadMeses; ++i){
+        cout << NombreMesAbrev(i) << ":$" << pcubo.Meses.at(i) << "  ";
+    }
+    cout << '\n';
+    for (size_t i = 0; i < CantidadVendedores; ++i){
+        cout << NombreVendedor(i) << ":$"<< pcubo.Vendedores.at(i) << "   ";
+    }    
+    cout << '\n';
+    for (size_t i = 0; i < CantidadRegiones; ++i){
+        cout << NombreRegion(i) << ":$" << pcubo.Regiones.at(i) << "   ";
+    }
+    cout << "\n\n";
 }
