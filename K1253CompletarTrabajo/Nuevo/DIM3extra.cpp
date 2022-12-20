@@ -10,6 +10,7 @@
 #define CantidadRegiones 4      //si mas de 4 agregar a enum regiones, si menos definir en enum cuales
 #define CantidadVendedores 3    //si mas de 3 modificar "ListaVendedores" si menos, definir cuales quedan
 #define CantidadMeses 12        //si se pone mas de 12 modificar "ListaMeses", si se pone menos de 12, definir cuales en "ListaMeses"    
+#define CapacidadCasiV 12        //debe ser igual o mayor a la dimension mayor del cubo,
 //para definir tamaño del "CUVO"
 #define CantidadCapos 1         //para definir tamaño array vendedores en "ventas del capo"
 #define RegionesCapos 1         //para definir tamaño array regiones en "ventas del capo"
@@ -30,19 +31,8 @@ using std::ofstream;
 
 using CUBO = array<array<array<int,CantidadMeses>,CantidadVendedores>,CantidadRegiones>;
 using CUVO = array<array<array<vector<int>,CantidadMeses>,CantidadCapos>,RegionesCapos>;
-using V3 = array<vector<int>,3>;    //para mostrar stats. Dimensiones x Vector{ValorDeReferencia, coincidencia, ..., coincidencia}
-
-struct TotalesCubo{                 //para uso estadisticas CUBO
-array<int,CantidadMeses> Meses;
-array<int,CantidadVendedores> Vendedores;
-array<int,CantidadRegiones> Regiones;
-};
-
-struct PromediosCubo{                 //para uso estadisticas CUBO
-array<double,CantidadMeses> Meses;
-array<double,CantidadVendedores> Vendedores;
-array<double,CantidadRegiones> Regiones;
-};
+// cambiar V3 por arraydin, sumar funcion agregar e imprimir, quitar(no necesaria)
+//se reemplaza using V3 = array<vector<int>,3>;    //para mostrar stats. Dimensiones x Vector{ValorDeReferencia, coincidencia, ..., coincidencia}
 
 enum Regiones{Norte, Sur, Este, Oeste, NoDefinida};
 enum MayorMenorIgual{Menor = -1, Igual = 0, Mayor = 1};
@@ -54,12 +44,31 @@ array<string,CantidadVendedores> ListaVendedores{
     "Juana",        //2
 };
 
-struct arraydin {
-    array<int,12> valores;
-    unsigned n{};
+struct CasiVector{                  //reemplaza uso vector para guardar coincidencias en resultados de estadisticas
+    array<int,CapacidadCasiV> valores;
+    unsigned size{};
 };
 
-void Agregar(arraydin, int); // cambiar V3 por arraydin, sumar funcion agregar e imprimir, quitar(no necesaria)
+struct TotalesCubo{                 //para uso estadisticas, consolidar CUBO
+    array<int,CantidadMeses> Meses;
+    array<int,CantidadVendedores> Vendedores;
+    array<int,CantidadRegiones> Regiones;
+};
+
+struct PromediosCubo{                 //para uso estadisticas CUBO
+    array<double,CantidadMeses> Meses;
+    array<double,CantidadVendedores> Vendedores;
+    array<double,CantidadRegiones> Regiones;
+};
+
+struct ResultadosCubo{  //para guardar resultados de stats: 3 montos (dim cubo) y cada coincidencia x dimension
+    int valormes{},
+        valorvend{},
+        valorregion{};
+    CasiVector  meses{},
+                vendedores{},
+                regiones{};
+};
 
 //:::::::::::::::::::::::::::Prototipos::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -102,6 +111,33 @@ void MostrarTotalesCubo(const TotalesCubo &);
 
 // MostrarTotalesCubo: (Z^12,Z^3,Z^4)-->ε/ EDL cout<<Totales Cubo
 void MostrarPromediosCubo(const PromediosCubo &);
+
+//::Operaciones para Casi Vector:::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+void CVagregar(CasiVector, int); 
+
+
+void CVquitarulti(CasiVector);
+
+
+void CVquitar1ro(CasiVector);
+
+
+void CVlimpiar(CasiVector);
+
+
+void CVimprimir(CasiVector);
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -364,15 +400,6 @@ void MostrarVentasCapo(const CUVO &vector){
     }
 }
 
-void MostrarV3(const V3 &vector){
-    for (auto v : vector){
-        for (auto i : v){
-            cout << i << " ";
-        }
-        cout << '\n';    
-    }
-}
-
 void MostrarTotalesCubo(const TotalesCubo &tcubo){
     for (size_t i = 0; i < CantidadMeses; ++i){
         cout << tcubo.Meses.at(i) << ' ';
@@ -402,6 +429,39 @@ void MostrarPromediosCubo(const PromediosCubo &pcubo){
     }
     cout << '\n';
 }
+//::Operaciones para Casi Vector:::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+/*
+struct CasiVector{ 
+    array<int,CapacidadCasiV> valores;
+    unsigned size{};
+};
+*/
+void CVagregar(CasiVector cv, int x){
+    cv.valores.at(cv.size) = x;
+    ++cv.size;
+}
+
+
+void CVquitarulti(CasiVector cv){
+
+}
+
+void CVquitar1ro(CasiVector cv){
+
+}
+
+void CVlimpiar(CasiVector cv){
+
+}
+
+
+void CVimprimir(CasiVector){
+
+}
+
+
+
 
 //::Cálculo de Estadísticas::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
