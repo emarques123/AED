@@ -483,7 +483,7 @@ struct CasiVector{
 };
 */
 void CVagregar(CasiVector &cv, int x){
-    cv.valores.at(cv.size) += x;
+    cv.valores.at(cv.size) = x;
     cv.size++;
 }
 
