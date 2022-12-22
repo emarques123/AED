@@ -1,4 +1,0 @@
-100	0	Juan	Norte
-200	1	Juana	Sur
-300	2	Jorge	Este
-400	11	Juan	Oeste
