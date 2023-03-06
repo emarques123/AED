@@ -12,10 +12,10 @@
 #define CANTIDAD_MESES 12        //si se pone mas de 12 modificar "ListaMeses", si se pone menos de 12, definir cuales en "ListaMeses"    
 #define CAPACIDAD_CASIV 12        //debe ser igual o mayor a la mayor dimension del cubo,
 //para definir tamaño del "CUVO"
-#define CANTIDAD_CAPOS 1         //para definir tamaño array vendedores en "ventas del capo"
-#define REGIONES_CAPOS 1         //para definir tamaño array regiones en "ventas del capo"
-#define EL_CAPO 0                //para definir que vendedor es el capo
-#define REGION_CAPO 0         //para definir cual es la region del capo
+#define CANTIDAD_CAPOS 1         //para definir tamaño array vendedores en "ventas del capo" *x ahora solo funciona 1!!!
+#define REGIONES_CAPOS 1         //para definir tamaño array regiones en "ventas del capo" *x ahora solo funciona 1!!!
+#define EL_CAPO 0                //para definir que vendedor es el capo *x ahora solo funciona 0!!!
+#define REGION_CAPO 0         //para definir cual es la region del capo *x ahora solo funciona 0!!!
 //#define INIT_SIZE_VECTOR 16          //para posible seteo de tamaño inicial para cada mes-vector del capo (hacer funcion?) *desestimado atm
 #define ARCHIVO_TXT "data.txt"   //para definir nombre de archivo
 #define ARCHIVO_BIN "data.bin"   //aca podria tenerotro para la cantidad de ventas             *revisar
