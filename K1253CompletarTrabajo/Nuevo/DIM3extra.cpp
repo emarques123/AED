@@ -226,7 +226,7 @@ void MostrarPromediosFormato(const CUBO &);
 
 
 
-
+//Variables Externas :::::::::::::::::::::::::::::::::
 
 //se alimentan desde CIN o archivo txt
 CUBO ImporteMesVendedorRegion{};
@@ -327,7 +327,7 @@ void LeerDatosTxt(){
 }
 
 void GuardarVentaDelCapo(const int r,const int c,const int m,const int v){
-    VentasDelCapo.at(r).at(c).at(m).push_back(v);
+    VentasDelCapo.at(r).at(c).at(m).push_back(v); // necesita rework para funcionar con capo =/= a vendor 0 region
 }
 
 
