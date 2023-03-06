@@ -7,19 +7,19 @@
 #include "Blockstream.h"
 
 //para definir tamaño del "CUBO"
-#define CantidadRegiones 4      //si mas de 4 agregar a enum regiones, si menos definir en enum cuales
-#define CantidadVendedores 3    //si mas de 3 modificar "ListaVendedores" si menos, definir cuales quedan
-#define CantidadMeses 12        //si se pone mas de 12 modificar "ListaMeses", si se pone menos de 12, definir cuales en "ListaMeses"    
-#define CapacidadCasiV 12        //debe ser igual o mayor a la dimension mayor del cubo,
+#define CANTIDAD_REGIONES 4      //si mas de 4 agregar a enum regiones, si menos definir en enum cuales
+#define CANTIDAD_VENDEDORES 3    //si mas de 3 modificar "ListaVendedores" si menos, definir cuales quedan
+#define CANTIDAD_MESES 12        //si se pone mas de 12 modificar "ListaMeses", si se pone menos de 12, definir cuales en "ListaMeses"    
+#define CAPACIDAD_CASIV 12        //debe ser igual o mayor a la mayor dimension del cubo,
 //para definir tamaño del "CUVO"
-#define CantidadCapos 1         //para definir tamaño array vendedores en "ventas del capo"
-#define RegionesCapos 1         //para definir tamaño array regiones en "ventas del capo"
-#define ElCapo 0                //para definir que vendedor es el capo
-#define RegionDelCapo 0         //para definir cual es la region del capo
-// #define InicioVector 16          //para posible seteo de tamaño inicial para cada mes-vector del capo (hacer funcion?) *desestimado atm
-#define ArchivoDeTexto "data.txt"   //para definir nombre de archivo
-#define ArchivoBinario "data.bin"   //aca podria tenerotro para la cantidad de ventas             *revisar
-#define CapoBIN "capo.bin"          //para definir el nombre de archivo
+#define CANTIDAD_CAPOS 1         //para definir tamaño array vendedores en "ventas del capo"
+#define REGIONES_CAPOS 1         //para definir tamaño array regiones en "ventas del capo"
+#define EL_CAPO 0                //para definir que vendedor es el capo
+#define REGION_CAPO 0         //para definir cual es la region del capo
+//#define INIT_SIZE_VECTOR 16          //para posible seteo de tamaño inicial para cada mes-vector del capo (hacer funcion?) *desestimado atm
+#define ARCHIVO_TXT "data.txt"   //para definir nombre de archivo
+#define ARCHIVO_BIN "data.bin"   //aca podria tenerotro para la cantidad de ventas             *revisar
+#define VENTAS_CAPO_BIN "capo.bin"          //para definir el nombre de archivo
 
 using std::array;
 using std::vector;
@@ -29,36 +29,36 @@ using std::cout;
 using std::ifstream;
 using std::ofstream;
 
-using CUBO = array<array<array<int,CantidadMeses>,CantidadVendedores>,CantidadRegiones>;
-using CUVO = array<array<array<vector<int>,CantidadMeses>,CantidadCapos>,RegionesCapos>;
+using CUBO = array<array<array<int,CANTIDAD_MESES>,CANTIDAD_VENDEDORES>,CANTIDAD_REGIONES>;
+using CUVO = array<array<array<vector<int>,CANTIDAD_MESES>,CANTIDAD_CAPOS>,REGIONES_CAPOS>;
 // cambiar V3 por arraydin, sumar funcion agregar e imprimir, quitar(no necesaria)
 //se reemplaza using V3 = array<vector<int>,3>;    //para mostrar stats. Dimensiones x Vector{ValorDeReferencia, coincidencia, ..., coincidencia}
 
 enum Regiones{Norte, Sur, Este, Oeste, NoDefinida};
 enum MayorMenorIgual{Menor = -1, Igual = 0, Mayor = 1};
 
-//Listado de Vendedores, revisar si la utiliza mas de una funcion? sino pasar a static dentro de funcion, aunque quizas pierde visibilidad
-array<string,CantidadVendedores> ListaVendedores{
+//Listado de Vendedores, revisar si la utiliza mas de una funcion? sino pasar a static dentro de funcion, aunque quizas se pierde visibilidad listado
+array<string,CANTIDAD_VENDEDORES> ListaVendedores{
     "Capo",         //0
     "Juan",         //1
     "Juana",        //2
 };
 
 struct CasiVector{                  //reemplaza uso vector para guardar coincidencias en resultados de estadisticas
-    array<int,CapacidadCasiV> valores;
+    array<int,CAPACIDAD_CASIV> valores;
     unsigned size{};
 };
 
 struct TotalesCubo{                 //para consolidar CUBO --> facilitar calculo de estadisticas
-    array<int,CantidadMeses> Meses;
-    array<int,CantidadVendedores> Vendedores;
-    array<int,CantidadRegiones> Regiones;
+    array<int,CANTIDAD_MESES> Meses;
+    array<int,CANTIDAD_VENDEDORES> Vendedores;
+    array<int,CANTIDAD_REGIONES> Regiones;
 };
 
 struct PromediosCubo{                 //para uso estadisticas CUBO
-    array<double,CantidadMeses> Meses;
-    array<double,CantidadVendedores> Vendedores;
-    array<double,CantidadRegiones> Regiones;
+    array<double,CANTIDAD_MESES> Meses;
+    array<double,CANTIDAD_VENDEDORES> Vendedores;
+    array<double,CANTIDAD_REGIONES> Regiones;
     double General;
 };
 
@@ -303,7 +303,7 @@ void LeerDatosCIN(){
     ImporteMesVendedorRegion.at(Region).at(Vendedor).at(Mes) += Importe;
     ++TrxMesVendedorRegion.at(Region).at(Vendedor).at(Mes);
 
-    if (Vendedor == ElCapo && Region == RegionDelCapo) // si hubiera mas de un capo >> llamar funcion "SosUnCapo?" (x ahora fuera del scope tp)
+    if (Vendedor == EL_CAPO && Region == REGION_CAPO) // si hubiera mas de un capo >> llamar funcion "SosUnCapo?" (x ahora fuera del scope tp)
     {
         GuardarVentaDelCapo(Region, Vendedor, Mes, Importe);
     }
@@ -313,13 +313,13 @@ void LeerDatosCIN(){
 
 void LeerDatosTxt(){
     static ifstream ifdatatxt;
-    ifdatatxt.open(ArchivoDeTexto);
+    ifdatatxt.open(ARCHIVO_TXT);
 
     for (int Importe{}, Mes{}, Vendedor{}, Region{};ifdatatxt >> Importe >> Mes >> Vendedor >> Region;){
     ImporteMesVendedorRegion.at(Region).at(Vendedor).at(Mes) += Importe;
     ++TrxMesVendedorRegion.at(Region).at(Vendedor).at(Mes);
 
-    if (Vendedor == ElCapo && Region == RegionDelCapo){ // si hubiera mas de un capo >> llamar funcion "SosUnCapo?" *pendiente se va de scope tp?
+    if (Vendedor == EL_CAPO && Region == REGION_CAPO){ // si hubiera mas de un capo >> llamar funcion "SosUnCapo?" *pendiente se va de scope tp?
         GuardarVentaDelCapo(Region, Vendedor, Mes, Importe);
         }
     }
@@ -333,19 +333,19 @@ void GuardarVentaDelCapo(const int r,const int c,const int m,const int v){
 
 void GuardarCuboBin(const CUBO &array){
     //constexpr auto filename{DataFileBIN}; ??? << investigar
-    static ofstream ofcubobin{ArchivoBinario, std::ios::binary};
+    static ofstream ofcubobin{ARCHIVO_BIN, std::ios::binary};
 	WriteBlock(ofcubobin, array);
 	ofcubobin.close();
 }
 
 void LeerCuboBin(CUBO &array){   
-    static ifstream ifcubobin{ArchivoBinario, std::ios::binary};
+    static ifstream ifcubobin{ARCHIVO_BIN, std::ios::binary};
     ReadBlock(ifcubobin, array);
     ifcubobin.close();
 }
 
 void GuardarCuvoBin(const CUVO &cuvo){
-    static ofstream ofcuvobin{CapoBIN, std::ios::binary};
+    static ofstream ofcuvobin{VENTAS_CAPO_BIN, std::ios::binary};
 
     int ir{};
     for(auto r : cuvo){  //itero x regiones capos, ya predefinido en #define, marco nro region
@@ -372,7 +372,7 @@ void GuardarCuvoBin(const CUVO &cuvo){
 }
 
 void LeerCuvoBIN(CUVO &cuvo){
-    static ifstream ifcuvobin{CapoBIN, std::ios::binary};
+    static ifstream ifcuvobin{VENTAS_CAPO_BIN, std::ios::binary};
     int ir{};
     for(auto r : cuvo){ //itero x regiones capos, ya predefinido en #define
         ReadBlock(ifcuvobin, ir); //leo que region es
@@ -428,15 +428,15 @@ void MostrarVentasCapo(const CUVO &vector){
 }
 
 void MostrarTotalesCubo(const TotalesCubo &tcubo){
-    for (size_t i = 0; i < CantidadMeses; ++i){
+    for (size_t i = 0; i < CANTIDAD_MESES; ++i){
         cout << tcubo.Meses.at(i) << ' ';
     }
     cout << '\n';
-    for (size_t i = 0; i < CantidadVendedores; ++i){
+    for (size_t i = 0; i < CANTIDAD_VENDEDORES; ++i){
         cout << tcubo.Vendedores.at(i) << ' ';
     }    
     cout << '\n';
-    for (size_t i = 0; i < CantidadRegiones; ++i){
+    for (size_t i = 0; i < CANTIDAD_REGIONES; ++i){
         cout << tcubo.Regiones.at(i) << ' ';
     }
     cout << '\n';
@@ -444,15 +444,15 @@ void MostrarTotalesCubo(const TotalesCubo &tcubo){
 
 void MostrarPromediosCubo(const PromediosCubo &pcubo){
     cout << pcubo.General <<'\n';
-    for (size_t i = 0; i < CantidadMeses; ++i){
+    for (size_t i = 0; i < CANTIDAD_MESES; ++i){
         cout << pcubo.Meses.at(i) << ' ';
     }
     cout << '\n';
-    for (size_t i = 0; i < CantidadVendedores; ++i){
+    for (size_t i = 0; i < CANTIDAD_VENDEDORES; ++i){
         cout << pcubo.Vendedores.at(i) << ' ';
     }    
     cout << '\n';
-    for (size_t i = 0; i < CantidadRegiones; ++i){
+    for (size_t i = 0; i < CANTIDAD_REGIONES; ++i){
         cout << pcubo.Regiones.at(i) << ' ';
     }
     cout << '\n';
@@ -493,7 +493,7 @@ void CVquitarulti(CasiVector &cv){
 /*
 no limpio valor quitado a cero dado que siempre nos vamos a apoyar en el "puntero" size para agregar o quitar, 
 volviendo irrelevante el valor residual que quede
-adicionalmente creo que la extrema sencillez de la funcion es un plus
+adicionalmente creo que la sencillez de la funcion es un plus
 */
 
 //"pisamos" el valor retirado por el siguiente y asi hasta mover todos 1 lugar hacia la izq
@@ -542,11 +542,11 @@ MayorMenorIgual CompararValores(const int &a,const int &b){
 
 TotalesCubo CalcularTotales(const CUBO &cubo){
     TotalesCubo totales{};
-    for(int ir{};ir < CantidadRegiones; ++ir){
+    for(int ir{};ir < CANTIDAD_REGIONES; ++ir){
 
-        for(int iv{}; iv < CantidadVendedores; ++iv){
+        for(int iv{}; iv < CANTIDAD_VENDEDORES; ++iv){
 
-            for(int im{}; im < CantidadMeses; ++im){
+            for(int im{}; im < CANTIDAD_MESES; ++im){
 
                 totales.Meses.at(im) += cubo[ir][iv][im];
                 totales.Vendedores.at(iv) += cubo[ir][iv][im];
@@ -563,17 +563,17 @@ array<int,3> ObtenerMejores(const TotalesCubo &tcubo){
         mejorvendedor{tcubo.Vendedores.at(0)},
         mejorregion{tcubo.Regiones.at(0)};    
 
-    for(int im{1}; im < CantidadMeses; ++im){
+    for(int im{1}; im < CANTIDAD_MESES; ++im){
         if (CompararValores(tcubo.Meses.at(im), mejormes)==MayorMenorIgual::Mayor){
             mejormes = tcubo.Meses.at(im);        
         }
     }
-    for(int iv{1}; iv < CantidadVendedores; ++iv){
+    for(int iv{1}; iv < CANTIDAD_VENDEDORES; ++iv){
         if (CompararValores(tcubo.Vendedores.at(iv), mejorvendedor)==MayorMenorIgual::Mayor){
             mejorvendedor = tcubo.Vendedores.at(iv);        
         }
     }
-    for(int ir{1}; ir < CantidadRegiones; ++ir){
+    for(int ir{1}; ir < CANTIDAD_REGIONES; ++ir){
         if (CompararValores(tcubo.Regiones.at(ir), mejorregion)==MayorMenorIgual::Mayor){
             mejorregion = tcubo.Regiones.at(ir);        
         }
@@ -588,17 +588,17 @@ array<int,3> ObtenerPeores(const TotalesCubo &tcubo){
         peorvendedor{tcubo.Vendedores.at(0)},
         peorregion{tcubo.Regiones.at(0)};
 
-    for(int im{1}; im < CantidadMeses; ++im){
+    for(int im{1}; im < CANTIDAD_MESES; ++im){
         if (CompararValores(tcubo.Meses.at(im), peormes)==MayorMenorIgual::Menor){
             peormes = tcubo.Meses.at(im);        
         }
     }
-    for(int iv{1}; iv < CantidadVendedores; ++iv){
+    for(int iv{1}; iv < CANTIDAD_VENDEDORES; ++iv){
         if (CompararValores(tcubo.Vendedores.at(iv), peorvendedor)==MayorMenorIgual::Menor){
             peorvendedor = tcubo.Vendedores.at(iv);        
         }
     }
-    for(int ir{1}; ir < CantidadRegiones; ++ir){
+    for(int ir{1}; ir < CANTIDAD_REGIONES; ++ir){
         if (CompararValores(tcubo.Regiones.at(ir), peorregion)==MayorMenorIgual::Menor){
             peorregion = tcubo.Regiones.at(ir);        
         }
@@ -616,18 +616,18 @@ ResultadosDinamicos BuscarCoincidencia(const array<int,3> &valoresref, const Tot
     rd.valorvend = valoresref[1];
     rd.valorregion = valoresref[2];
 
-    for(int im{}; im < CantidadMeses; ++im){
+    for(int im{}; im < CANTIDAD_MESES; ++im){
         if (CompararValores(rd.valormes, tcubo.Meses.at(im))==MayorMenorIgual::Igual){
             CVagregar(rd.meses, im);
             //vector[0].push_back(im);        
         }
     }
-    for(int iv{}; iv < CantidadVendedores; ++iv){
+    for(int iv{}; iv < CANTIDAD_VENDEDORES; ++iv){
         if (CompararValores(rd.valorvend, tcubo.Vendedores.at(iv))==MayorMenorIgual::Igual){
             CVagregar(rd.vendedores, iv);        
         }
     }
-    for(int ir{}; ir < CantidadRegiones; ++ir){
+    for(int ir{}; ir < CANTIDAD_REGIONES; ++ir){
         if (CompararValores(rd.valorregion, tcubo.Regiones.at(ir))==MayorMenorIgual::Igual){
             CVagregar(rd.regiones, ir);
         }
@@ -652,20 +652,20 @@ PromediosCubo CalcularPromedios(const TotalesCubo &total, const TotalesCubo &trx
     double  suma{}, 
             cant{};
 
-    for(int i{}; i < CantidadMeses; ++i){
+    for(int i{}; i < CANTIDAD_MESES; ++i){
         promedios.Meses.at(i) += (total.Meses.at(i)*1.0) / trx.Meses.at(i);
         suma += total.Meses.at(i);
         cant += trx.Meses.at(i);
 
     }
 
-    for(int i{}; i < CantidadVendedores; ++i){
+    for(int i{}; i < CANTIDAD_VENDEDORES; ++i){
         promedios.Vendedores.at(i) += (total.Vendedores.at(i)*1.0) / trx.Vendedores.at(i);
         suma += total.Vendedores.at(i);
         cant += trx.Vendedores.at(i);
     }
 
-    for(int i{}; i < CantidadRegiones; ++i){
+    for(int i{}; i < CANTIDAD_REGIONES; ++i){
         promedios.Regiones.at(i) += (total.Regiones.at(i)*1.0) / trx.Regiones.at(i);
         suma += total.Regiones.at(i);
         cant += trx.Regiones.at(i);
@@ -675,32 +675,6 @@ PromediosCubo CalcularPromedios(const TotalesCubo &total, const TotalesCubo &trx
     return promedios;
 }
 
-
-
-
-
-//no funciona, tira 100 siempre, revisar!
-double GetPromedioVentas(int Desde, int Hasta){
-
-double Sumatoria{0}, Contador{0};
-int ir{0};
-
-for ( auto r : ImporteMesVendedorRegion) { 
-    int iv{0};
-    for (auto v : r){
-        //for (auto t : v){
-        for (; Desde <= Hasta; ++Desde){
-            Sumatoria += ImporteMesVendedorRegion[ir][iv].at(Desde);
-            Contador += TrxMesVendedorRegion[ir][iv].at(Desde);
-        }
-        ++iv;
-    }
-    ++ir;
-}
-//return Contador == 0? 0:(Sumatoria/Contador);
-cout << Contador << " "<< Sumatoria;
-return 0;
-}
 
 //::Stats Simples:: Plan B (combinar pasos plan A y evitar segunda iteracion x TotalesCubo)
 //::Stats con Parametros Variables::
@@ -718,14 +692,14 @@ string NombreRegion(const int numr){
 }
 
 string NombreVendedor(const int numv){
-    if(numv+1 > CantidadVendedores || numv < 0)
+    if(numv+1 > CANTIDAD_VENDEDORES || numv < 0)
         return "No Definido";
     else
     return ListaVendedores.at(numv);
 }
 
 string NombreMes(const int numm){
-static array<string,CantidadMeses> ListaMeses{
+static array<string,CANTIDAD_MESES> ListaMeses{
     "Enero",        //0
     "Febrero",      //1
     "Marzo",        //2
@@ -739,14 +713,14 @@ static array<string,CantidadMeses> ListaMeses{
     "Noviembre",    //10
     "Diciembre",    //11
 };
-    if (numm+1 > CantidadMeses || numm < 0)
+    if (numm+1 > CANTIDAD_MESES || numm < 0)
         return "No Definido";
     else
     return ListaMeses.at(numm);
 }
 
 string NombreMesAbrev(const int numm){
-static array<string,CantidadMeses> ListaMesesAbrev{
+static array<string,CANTIDAD_MESES> ListaMesesAbrev{
     "Ene",      //0
     "Feb",      //1
     "Mar",      //2
@@ -760,7 +734,7 @@ static array<string,CantidadMeses> ListaMesesAbrev{
     "Nov",      //10
     "Dic",      //11
 };
-    if (numm+1 > CantidadMeses || numm < 0)
+    if (numm+1 > CANTIDAD_MESES || numm < 0)
         return "No Def";
     else
     return ListaMesesAbrev.at(numm);
@@ -818,15 +792,15 @@ void MostrarTotalesCuboFormato(const TotalesCubo &tcubo){
     cout << "La venta total fue:$" << tcubo.Vendedores.at(0)+ tcubo.Vendedores.at(1)+ tcubo.Vendedores.at(2); // *a mejorar con loop
 
     cout << "\n\nTotales agrupados por Mes, Vendedor y Region:\n";
-    for (size_t i = 0; i < CantidadMeses; ++i){
+    for (size_t i = 0; i < CANTIDAD_MESES; ++i){
         cout << NombreMesAbrev(i) << ":$" << tcubo.Meses.at(i) << "  ";
     }
     cout << '\n';
-    for (size_t i = 0; i < CantidadVendedores; ++i){
+    for (size_t i = 0; i < CANTIDAD_VENDEDORES; ++i){
         cout << NombreVendedor(i) << ":$"<< tcubo.Vendedores.at(i) << "   ";
     }    
     cout << '\n';
-    for (size_t i = 0; i < CantidadRegiones; ++i){
+    for (size_t i = 0; i < CANTIDAD_REGIONES; ++i){
         cout << NombreRegion(i) << ":$" << tcubo.Regiones.at(i) << "   ";
     }
     cout << "\n\n";
@@ -876,15 +850,15 @@ void MostrarPromediosFormato(const CUBO &cubo){
 
     cout << "\nLa venta promedio general fue: $" << pcubo.General <<'\n';
     cout << "Ventas promedios especificas:\n";
-    for (size_t i = 0; i < CantidadMeses; ++i){
+    for (size_t i = 0; i < CANTIDAD_MESES; ++i){
         cout << NombreMesAbrev(i) << ":$" << pcubo.Meses.at(i) << '\n';
     }
     cout << '\n';
-    for (size_t i = 0; i < CantidadVendedores; ++i){
+    for (size_t i = 0; i < CANTIDAD_VENDEDORES; ++i){
         cout << NombreVendedor(i) << ":$"<< pcubo.Vendedores.at(i) << '\n';
     }    
     cout << '\n';
-    for (size_t i = 0; i < CantidadRegiones; ++i){
+    for (size_t i = 0; i < CANTIDAD_REGIONES; ++i){
         cout << NombreRegion(i) << ":$" << pcubo.Regiones.at(i) << '\n';
     }
     //cout << '\n';
