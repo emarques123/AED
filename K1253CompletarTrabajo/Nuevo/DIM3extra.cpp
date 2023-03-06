@@ -524,7 +524,7 @@ int CVacceder(const CasiVector &cv, unsigned n){
     return cv.valores.at(n);
 }
 /* 
-a esta ultima la agregue solo como pasatiempo me parece redundante / poco practica
+a esta ultima la agregué pero me parece redundante / poco practica
 y **ademas deberia manejar excepciones de algun tipo para n mayor al numero de elementos
 */
 
